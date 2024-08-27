@@ -92,7 +92,7 @@ module ledScan(
     
     always@*
         begin
-            case(hexin)
+            case(hexin)               
                 4'b0000 : ledCode[6:0] = 7'b1000_000;//7'b0111_111;//七段译码
                 4'b0001 : ledCode[6:0] = 7'b1111_001;//7'b0000_110;
                 4'b0010 : ledCode[6:0] = 7'b0100_100;//7'b1011_011;
