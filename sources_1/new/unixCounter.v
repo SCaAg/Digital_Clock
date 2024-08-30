@@ -30,15 +30,15 @@ module unixCounter
     );
     reg[M-1:0] fenpingCounter;
     wire clk1Hz;
-    //localparam fenpingM=50000000;
-    localparam fenpingM=5;
+    localparam fenpingM=50000000;
+    //localparam fenpingM=5;
+    //localparam fenpingM=5000000;
     initial 
         begin
             fenpingCounter=64'b0;
-            counter=64'b1;
-        end
-    
-    
+            counter=64'b0;
+        end  
+        
     //分频计数器加
     always @(posedge clk)
         begin
@@ -57,13 +57,10 @@ module unixCounter
                 fenpingCounter<=fenpingCounter+1;
             else 
                 fenpingCounter<=0;
+        if(clk1Hz)
+            counter<=counter+1;
         end
-        
-    
+          
     assign clk1Hz=(fenpingCounter==fenpingM)? 1'b1:1'b0;
-    
-    //1Hz上升沿
-    always @(posedge clk1Hz)
-        counter<=counter+1;
-        
+         
 endmodule

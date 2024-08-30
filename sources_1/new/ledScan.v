@@ -20,6 +20,7 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 //LED扫描显示8个数码管
+//小数点低电平有效
 module ledScan(
     input clk,reset_n,
     input [3:0] led1Number,led2Number,led3Number,led4Number,led5Number,led6Number,led7Number,led8Number,
@@ -27,8 +28,8 @@ module ledScan(
     output reg[7:0] ledCode,
     output reg[7:0] an
     );
-    //localparam N=16;
-    localparam N=3;
+    localparam N=16;
+    //localparam N=3;
     reg[N-1:0] regN;
     reg[3:0] hexin;
     reg dp;
@@ -42,49 +43,49 @@ module ledScan(
             //片选高平使能
             3'b000:
                 begin
-                    an=8'b00000001;
+                    an=8'b11111110;
                     hexin=led1Number;
                     dp=point[0];
                 end
             3'b001:
                 begin
-                    an=8'b00000010;
+                    an=8'b11111101;
                     hexin=led2Number;
                     dp=point[1];
                 end 
             3'b010:
                 begin
-                    an=8'b00000100;
+                    an=8'b11111011;
                     hexin=led3Number;
                     dp=point[2];
                 end 
             3'b011:
                 begin
-                    an=8'b00001000;
+                    an=8'b11110111;
                     hexin=led4Number;
                     dp=point[3];
                 end  
             3'b100:
                 begin
-                    an=8'b00010000;
+                    an=8'b11101111;
                     hexin=led5Number;
                     dp=point[4];
                 end   
             3'b101:
                 begin
-                    an=8'b00100000;
+                    an=8'b11011111;
                     hexin=led6Number;
                     dp=point[5];
                 end   
             3'b110:
                 begin
-                    an=8'b01000000;
+                    an=8'b10111111;
                     hexin=led7Number;
                     dp=point[6];
                 end  
             3'b111:
                 begin
-                    an=8'b10000000;
+                    an=8'b01111111;
                     hexin=led8Number;
                     dp=point[7];
                 end                                                                                             
