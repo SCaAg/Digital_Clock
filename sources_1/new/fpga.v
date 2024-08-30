@@ -23,6 +23,7 @@
 module fpga (
     input clk,
     input reset_n,
+    input btn0,
     output [7:0] seg,
     output [7:0] an
 );
@@ -36,8 +37,15 @@ module fpga (
   wire [3:0] led6Number;
   wire [3:0] led7Number;
   wire [3:0] led8Number;
-  reg [7:0] point = 8'b0000_0000;
+  wire [7:0] point;
 
+
+  reg display_year = 1'b1;
+
+  always @(posedge clk) begin
+    if (btn0) display_year <= 1;
+    else display_year <= 0;
+  end
 
 
   reg go = 1'b1;
@@ -51,79 +59,15 @@ module fpga (
       .counter(counter)
   );
 
-
-
-
-
-  wire [13:0] year;
-  wire [ 3:0] month;  // 输出范围 1~12
-  wire [ 4:0] day;  // 输出范围 1~31
-  wire [ 2:0] weekday;  // 输出范围 0~6 (代表星期天~星期六)
-  wire [ 4:0] hour;  // 输出范围 0~23
-  wire [ 5:0] minute;  // 输出范围 0~59
-  wire [ 5:0] second;  // 输出范围 0~59
-
-
-
-  unix64_to_UTC unix64_to_UTC1 (
+  wire [39:0] display_bcd;
+  counter2bcd counter2bcd1 (
       .clk(clk),
       .rst_n(reset_n),
-      .unix_time(counter),
-      .year(year),
-      .month(month),
-      .day(day),
-      .weekday(weekday),
-      .hour(hour),
-      .minute(minute),
-      .second(second)
+      .counter(counter),
+      .display_year(display_year),
+      .eight_segment(display_bcd)
   );
-
-
-
-
-  wire [15:0] year_bcd;
-  bin2bcd #(14) bin2bcd1 (
-      .bin(year),
-      .bcd(year_bcd)
-  );
-
-
-  wire [7:0] month_bcd;
-  bin2bcd #(4) bin2bcd2 (
-      .bin(month),
-      .bcd(month_bcd)
-  );
-
-  wire [7:0] day_bcd;
-  bin2bcd #(3) bin2bcd3 (
-      .bin(day),
-      .bcd(day_bcd)
-  );
-
-  wire [7:0] hour_bcd;
-  bin2bcd #(5) bin2bcd4 (
-      .bin(hour),
-      .bcd(hour_bcd)
-  );
-
-  wire [7:0] minute_bcd;
-  bin2bcd #(6) bin2bcd5 (
-      .bin(minute),
-      .bcd(minute_bcd)
-  );
-
-  wire [7:0] second_bcd;
-  bin2bcd #(6) bin2bcd6 (
-      .bin(second),
-      .bcd(second_bcd)
-  );
-
-
-  assign {led1Number, led2Number} = hour_bcd;
-  assign led3Number = 'd10;
-  assign {led4Number, led5Number} = minute_bcd;
-  assign led6Number = 'd10;
-  assign {led7Number, led8Number} = second_bcd;
+  assign {led8Number,led7Number,led6Number,led5Number,led4Number,led3Number,led2Number,led1Number,point} = display_bcd;
 
   ledScan ledScan1 (
       .clk(clk),
