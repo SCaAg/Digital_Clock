@@ -20,24 +20,23 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 //LED扫描显示8个数码管
-//小数点低电平有效
 module ledScan (
-    input clk,
-    reset_n,
-    input [3:0] led1Number,
-    led2Number,
-    led3Number,
-    led4Number,
-    led5Number,
-    led6Number,
-    led7Number,
-    led8Number,
-    input [7:0] point,
+    input wire clk,
+    input wire reset_n,
+    input wire [3:0] led1Number,
+    input wire [3:0] led2Number,
+    input wire [3:0] led3Number,
+    input wire [3:0] led4Number,
+    input wire [3:0] led5Number,
+    input wire [3:0] led6Number,
+    input wire [3:0] led7Number,
+    input wire [3:0] led8Number,
+    input wire [7:0] point,
     output reg [7:0] ledCode,
     output reg [7:0] an
 );
-  localparam N = 16;
-  //localparam N=3;
+  //localparam N=16;
+  localparam N = 3;
   reg [N-1:0] regN;
   reg [3:0] hexin;
   reg dp;
@@ -48,42 +47,42 @@ module ledScan (
     case (regN[N-1:N-3])
       //片选高平使能
       3'b000: begin
-        an = 8'b11111110;
+        an = 8'b00000001;
         hexin = led1Number;
         dp = point[0];
       end
       3'b001: begin
-        an = 8'b11111101;
+        an = 8'b00000010;
         hexin = led2Number;
         dp = point[1];
       end
       3'b010: begin
-        an = 8'b11111011;
+        an = 8'b00000100;
         hexin = led3Number;
         dp = point[2];
       end
       3'b011: begin
-        an = 8'b11110111;
+        an = 8'b00001000;
         hexin = led4Number;
         dp = point[3];
       end
       3'b100: begin
-        an = 8'b11101111;
+        an = 8'b00010000;
         hexin = led5Number;
         dp = point[4];
       end
       3'b101: begin
-        an = 8'b11011111;
+        an = 8'b00100000;
         hexin = led6Number;
         dp = point[5];
       end
       3'b110: begin
-        an = 8'b10111111;
+        an = 8'b01000000;
         hexin = led7Number;
         dp = point[6];
       end
       3'b111: begin
-        an = 8'b01111111;
+        an = 8'b10000000;
         hexin = led8Number;
         dp = point[7];
       end
@@ -101,7 +100,7 @@ module ledScan (
       4'b0111: ledCode[6:0] = 7'b1111_000;  //7'b0000_111;
       4'b1000: ledCode[6:0] = 7'b0000_000;  //7'b1111_111;
       4'b1001: ledCode[6:0] = 7'b0010_000;  //7'b1101_111;
-      4'b1010: ledCode[6:0] = 7'b0111_111;  //7'b1110_111;
+      4'b1010: ledCode[6:0] = 7'b0001_000;  //7'b1110_111;
       4'b1011: ledCode[6:0] = 7'b0000_011;  //7'b1111_100;
       4'b1100: ledCode[6:0] = 7'b1000_110;  //7'b0111_001;
       4'b1101: ledCode[6:0] = 7'b0100_001;  //7'b1011_110;
