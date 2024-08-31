@@ -40,12 +40,8 @@ module fpga (
   wire [7:0] point;
 
 
-  reg display_year = 1'b1;
+  reg display_year = 1'b0;
 
-  always @(posedge clk) begin
-    if (btn0) display_year <= 1;
-    else display_year <= 0;
-  end
 
 
   reg go = 1'b1;

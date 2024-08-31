@@ -1,4 +1,5 @@
 create_clock -period 20.000 -name clk [get_ports clk]
+set_property -dict {PACKAGE_PIN R19 IOSTANDARD LVCMOS33} [get_ports {btn0}]
 set_property PACKAGE_PIN AB18 [get_ports {seg[0]}]
 set_property PACKAGE_PIN U17 [get_ports {seg[1]}]
 set_property PACKAGE_PIN U18 [get_ports {seg[2]}]

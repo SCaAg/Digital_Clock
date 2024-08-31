@@ -93,7 +93,7 @@ module counter2bcd (
 
   always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
-      eight_segment <= 32'b0;
+      eight_segment <= 40'd0;
     end else begin
       if (display_year) begin
         eight_segment <= {year_bcd, month_bcd, day_bcd, 8'b11101010};
