@@ -23,9 +23,10 @@
 module counter2bcd (
     input wire clk,
     input wire rst_n,
-    input wire counter,
+    input wire [63:0] counter,
     input wire display_year,
-    output reg [39:0] eight_segment
+    output reg [39:0] eight_segment,
+    output wire [5:0] second_out
 );
 
 
@@ -37,7 +38,7 @@ module counter2bcd (
   wire [ 4:0] hour;  // 输出范围 0~23
   wire [ 5:0] minute;  // 输出范围 0~59
   wire [ 5:0] second;  // 输出范围 0~59
-
+  assign second_out = second;
 
 
   unix64_to_UTC unix64_to_UTC1 (

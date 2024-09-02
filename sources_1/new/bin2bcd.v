@@ -1,3 +1,14 @@
+/**
+ * @module bin2bcd
+ * @brief Converts a binary number to binary-coded decimal (BCD) representation.
+ *
+ * This module takes a binary input and converts it to BCD format. The BCD output
+ * consists of separate digits representing thousands, hundreds, tens, and ones.
+ *
+ * @param W The width of the input binary number.
+ * @param bin The binary input to be converted to BCD.
+ * @param bcd The BCD output representing the converted binary number.
+ */
 module bin2bcd #(
     parameter W = 18  // input width
 ) (

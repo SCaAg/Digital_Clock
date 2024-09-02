@@ -20,50 +20,44 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module unixCounter
-  #(parameter N = 64, //计数器位数
-    parameter M = 26) //分频计数器位数
-    (
-    input clk,reset_n,load_n,go,
-    input [N-1:0] setCounter,
-    output reg[N-1:0] counter
-    );
-    reg[M-1:0] fenpingCounter;
-    wire clk1Hz;
-    //localparam fenpingM=50000000;
-    localparam fenpingM=5;
-    initial 
-        begin
-            fenpingCounter=64'b0;
-            counter=64'b1;
-        end
-    
-    
-    //分频计数器加
-    always @(posedge clk)
-        begin
-        if(!reset_n)
-            begin
-                counter<=0;
-                fenpingCounter<=0;
-            end
-        else if(!load_n)
-            begin
-                counter<=setCounter;
-                fenpingCounter<=0;
-            end
-        else if(go)
-            if(fenpingCounter<fenpingM)
-                fenpingCounter<=fenpingCounter+1;
-            else 
-                fenpingCounter<=0;
-        end
-        
-    
-    assign clk1Hz=(fenpingCounter==fenpingM)? 1'b1:1'b0;
-    
-    //1Hz上升沿
-    always @(posedge clk1Hz)
-        counter<=counter+1;
-        
+module unixCounter #(
+    parameter N = 64,  //计数器位数
+    parameter M = 26   //分频计数器位数
+) (
+    input wire clk,
+    input wire reset_n,
+    input wire load_n,
+    input wire go,
+    input wire [N-1:0] set_counter,
+    output reg [N-1:0] counter
+);
+  reg [M-1:0] division_counter;
+  wire clk1Hz;
+  //localparam divisionM=50000000;
+  localparam divisionM = 5;
+  initial begin
+    division_counter = 64'b0;
+    counter = 64'b1;
+  end
+
+
+  //分频计数器加
+  always @(posedge clk) begin
+    if (!reset_n) begin
+      counter <= 0;
+      division_counter <= 0;
+    end else if (!load_n) begin
+      counter <= set_counter;
+      division_counter <= 0;
+    end else if (go)
+      if (division_counter < divisionM) division_counter <= division_counter + 1;
+      else division_counter <= 0;
+  end
+
+
+  assign clk1Hz = (division_counter == divisionM) ? 1'b1 : 1'b0;
+
+  //1Hz上升沿
+  always @(posedge clk1Hz) counter <= counter + 1;
+
 endmodule
