@@ -24,6 +24,8 @@ module tb_ledScan();
     reg clk,reset_n;
     reg [3:0] led1Number,led2Number,led3Number,led4Number,led5Number,led6Number,led7Number,led8Number;
     reg [7:0] point;
+    reg [7:0] which_shine=8'b00010000;
+    reg is_shine=1;
     ledScan ledscan1(
         .led1Number(led1Number),
         .led2Number(led2Number),
@@ -35,7 +37,9 @@ module tb_ledScan();
         .led8Number(led8Number),
         .clk(clk),
         .reset_n(reset_n),
-        .point(point)
+        .point(point),
+        .is_shine(is_shine),
+        .which_shine(which_shine)
     );
     
     initial

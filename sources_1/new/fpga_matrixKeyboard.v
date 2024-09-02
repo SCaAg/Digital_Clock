@@ -29,32 +29,7 @@ module fpga_matrixKeyboard(
     output [7:0] an
     );
 
-    reg[7:0] point;
-    reg[3:0] led1Number=0;
-    reg[3:0] led2Number=0;
-    reg[3:0] led3Number=0;
-    reg[3:0] led4Number=0;
-    reg[3:0] led5Number=0;
-    reg[3:0] led6Number=0;
-    reg[3:0] led7Number=0;
-    reg[3:0] led8Number=0;
-
-    ledScan ledScan1(
-        .clk(clk),
-        .reset_n(reset_n),
-        .led1Number(led1Number),
-        .led2Number(led2Number),
-        .led3Number(led3Number),
-        .led4Number(led4Number),
-        .led5Number(led5Number),
-        .led6Number(led6Number),
-        .led7Number(led7Number),
-        .led8Number(led8Number),
-        .point(point),
-        .ledCode(seg),
-        .an(an)
-    );
-
+    //按键
     wire [3:0] key_code;
     wire key_vaild;
     matrixKeyboard matrixKeyboard1(
@@ -86,12 +61,54 @@ module fpga_matrixKeyboard(
         .key5_state(key5_state)
     );
 
-    always @*begin
-        led1Number=key0_state;
-        led2Number=key1_state;
-        led3Number=key2_state;
-        led4Number=key3_state;
-        led5Number=key4_state;
-        led6Number=key5_state;
-    end
+    //计数器
+    reg load_n=1;
+    reg go=1;
+    wire [63:0] counter;
+
+    unixCounter counter1(
+        .clk(clk),
+        .reset_n(reset_n),
+        .load_n(load_n),
+        .setCounter(inputcounter),
+        .go(go),
+        .counter(counter)
+    );
+
+    //数码管显示
+    wire[7:0] point;
+    wire[3:0] led1Number;
+    wire[3:0] led2Number;
+    wire[3:0] led3Number;
+    wire[3:0] led4Number;
+    wire[3:0] led5Number;
+    wire[3:0] led6Number;
+    wire[3:0] led7Number;
+    wire[3:0] led8Number;
+
+    ledScan ledScan1(
+        .clk(clk),
+        .reset_n(reset_n),
+        .led1Number(led1Number),
+        .led2Number(led2Number),
+        .led3Number(led3Number),
+        .led4Number(led4Number),
+        .led5Number(led5Number),
+        .led6Number(led6Number),
+        .led7Number(led7Number),
+        .led8Number(led8Number),
+        .point(point),
+        .ledCode(seg),
+        .an(an)
+    );
+
+    //计数器转BCD
+    counter2bcd counter2bcd1(
+        .clk(clk),
+        .rst_n(reset_n),
+        .counter(counter),
+        .display_year(key0_state),
+        .eight_segment({led8Number,led7Number,led6Number,led5Number,led4Number,led3Number,led2Number,led1Number})
+    );
+
 endmodule
