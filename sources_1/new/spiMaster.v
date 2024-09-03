@@ -18,10 +18,10 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-//spiÖ÷»ú
+//spiï¿½ï¿½ï¿½ï¿½
 //
 
-module spiMaster(
+module spiMaster (
     output reg sck,
     output reg mosi,
     output cs,
@@ -31,6 +31,6 @@ module spiMaster(
     input [7:0] spi_data_out,
     input spi_send,
 
-    output reg spi_send_done,
-    );
+    output reg spi_send_done
+);
 endmodule
