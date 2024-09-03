@@ -56,13 +56,7 @@ module fpga (
   );
 
   wire [39:0] display_bcd;
-  counter2bcd counter2bcd1 (
-      .clk(clk),
-      .rst_n(reset_n),
-      .counter(counter),
-      .display_year(display_year),
-      .eight_segment(display_bcd)
-  );
+
   assign {led8Number,led7Number,led6Number,led5Number,led4Number,led3Number,led2Number,led1Number,point} = display_bcd;
 
   ledScan ledScan1 (
