@@ -45,8 +45,8 @@ module ledScan (
   reg dp;
 
   reg[25:0] clk_500Hz_counter;
-  //localparam clk_500Hz_M=25000000;
-  localparam clk_500Hz_M=10;
+  localparam clk_500Hz_M=25000000;
+  //localparam clk_500Hz_M=10;
   reg clk_500Hz=0;
 
 
@@ -121,7 +121,7 @@ module ledScan (
       4'b1000: ledCode[6:0] = 7'b0000_000;  //7'b1111_111;
       4'b1001: ledCode[6:0] = 7'b0010_000;  //7'b1101_111;
       4'b1010: ledCode[6:0] = 7'b0111_111;  //7'b1110_111;
-      4'b1011: ledCode[6:0] = 7'b0000_011;  //7'b1111_100;
+      4'b1011: ledCode[6:0] = 7'b1111_111;  //7'b1111_100;
       4'b1100: ledCode[6:0] = 7'b1000_110;  //7'b0111_001;
       4'b1101: ledCode[6:0] = 7'b0100_001;  //7'b1011_110;
       4'b1110: ledCode[6:0] = 7'b0000_110;  //7'b1111_001;

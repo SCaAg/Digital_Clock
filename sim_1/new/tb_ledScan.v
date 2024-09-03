@@ -56,7 +56,6 @@ module tb_ledScan();
             clk=0;
             reset_n=0;
             #100 reset_n=1;
-            #1000 $stop;
         end
     always
         begin
