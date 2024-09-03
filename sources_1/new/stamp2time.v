@@ -20,24 +20,24 @@
 //////////////////////////////////////////////////////////////////////////////////
 
 
-module counter2bcd (
+module stamp2time (
     input wire clk,
     input wire rst_n,
-    input wire counter,
-    input wire display_year,
-    output reg [39:0] eight_segment
+    input wire [63:0] counter,
+    output wire [15:0] year_bcd,
+    output wire [7:0] month_bcd,
+    output wire [7:0] day_bcd,
+    output wire [7:0] hour_bcd,
+    output wire [7:0] minute_bcd,
+    output wire [7:0] second_bcd,
+    output wire [13:0] year,
+    output wire [3:0] month,
+    output wire [4:0] day,
+    output wire [2:0] weekday,
+    output wire [4:0] hour,
+    output wire [5:0] minute,
+    output wire [5:0] second
 );
-
-
-
-  wire [13:0] year;
-  wire [ 3:0] month;  // 输出范围 1~12
-  wire [ 4:0] day;  // 输出范围 1~31
-  wire [ 2:0] weekday;  // 输出范围 0~6 (代表星期天~星期六)
-  wire [ 4:0] hour;  // 输出范围 0~23
-  wire [ 5:0] minute;  // 输出范围 0~59
-  wire [ 5:0] second;  // 输出范围 0~59
-
 
 
   unix64_to_UTC unix64_to_UTC1 (
@@ -54,53 +54,43 @@ module counter2bcd (
   );
 
 
-  wire [15:0] year_bcd;
+
   bin2bcd #(14) bin2bcd1 (
       .bin(year),
       .bcd(year_bcd)
   );
 
 
-  wire [7:0] month_bcd;
+
   bin2bcd #(4) bin2bcd2 (
       .bin(month),
       .bcd(month_bcd)
   );
 
-  wire [7:0] day_bcd;
+
   bin2bcd #(3) bin2bcd3 (
       .bin(day),
       .bcd(day_bcd)
   );
 
-  wire [7:0] hour_bcd;
+
   bin2bcd #(5) bin2bcd4 (
       .bin(hour),
       .bcd(hour_bcd)
   );
 
-  wire [7:0] minute_bcd;
+
   bin2bcd #(6) bin2bcd5 (
       .bin(minute),
       .bcd(minute_bcd)
   );
 
-  wire [7:0] second_bcd;
+
   bin2bcd #(6) bin2bcd6 (
       .bin(second),
       .bcd(second_bcd)
   );
 
-  always @(posedge clk or negedge rst_n) begin
-    if (!rst_n) begin
-      eight_segment <= 40'd0;
-    end else begin
-      if (display_year) begin
-        eight_segment <= {year_bcd, month_bcd, day_bcd, 8'b11101010};
-      end else begin
-        eight_segment <= {hour_bcd, 4'd10, minute_bcd, 4'd10, second_bcd, 8'b11111111};
-      end
-    end
-  end
+
 
 endmodule

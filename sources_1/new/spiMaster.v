@@ -18,10 +18,14 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
+<<<<<<< HEAD
 //spi主机
+=======
+//spi����
+>>>>>>> 78b2ff98e101b490798a034122964a86c62cd94e
 //
 
-module spiMaster(
+module spiMaster (
     output reg sck,
     output reg mosi,
     output reg cs,
@@ -31,6 +35,7 @@ module spiMaster(
     input [7:0] spi_data_out,
     input spi_send,
 
+<<<<<<< HEAD
     output reg spi_send_done,
     input clk,
     input reset_n,
@@ -110,4 +115,8 @@ module spiMaster(
         end
         else if(spi_send)
             reg_data<=spi_data_out;
+=======
+    output reg spi_send_done
+);
+>>>>>>> 78b2ff98e101b490798a034122964a86c62cd94e
 endmodule
