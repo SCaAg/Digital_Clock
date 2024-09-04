@@ -27,6 +27,7 @@ module bcd_increment_16bit (
 );
   wire carry0, carry1, carry2;
   wire [15:0] bcd_tmp;
+
   // Increment least significant BCD digit
   bcd_adder bcd_adder_0 (
       .a(bcd_in[3:0]),
@@ -62,6 +63,8 @@ module bcd_increment_16bit (
       .sum(bcd_tmp[15:12]),
       .cout()  // `cout` is ignored
   );
-  assign bcd_out = bcd_tmp == bcd_max ? 16'd0 : bcd_tmp;
+
+  // Ensure correct BCD increment and reset if max value is reached
+  assign bcd_out = (bcd_tmp >= bcd_max) ? 16'd0 : bcd_tmp;
 endmodule
 

@@ -59,7 +59,7 @@ module time2stamp (
 
   // Handle leap year day adjustment if after February in a leap year
   wire is_leap_year = ((year % 4 == 0 && year % 100 != 0) || (year % 400 == 0)) ? 1 : 0;
-  wire all_days;
+  wire [31:0] all_days;
   assign all_days = (month > 2 && is_leap_year) ? days + 1 : days;
 
   // Convert days to seconds and add hours, minutes, and seconds
