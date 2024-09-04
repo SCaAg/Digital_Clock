@@ -21,97 +21,160 @@
 
 
 module alarm (
+    //--basic input--//
     input wire clk,
     input wire rst_n,
-    input wire up_btn,
-    input wire down_btn,
-    input wire [2:0] edit_state,
-    input wire [2:0] edit_opt,
+    //---interface to set alarm---//
+    input wire set,
+    input wire [15:0] alarm_year_bcd,
+    input wire [7:0] alarm_month_bcd,
+    input wire [7:0] alarm_day_bcd,
+    input wire [7:0] alarm_hour_bcd,
+    input wire [7:0] alarm_minute_bcd,
+    input wire [7:0] alarm_second_bcd,
+    input wire [1:0] selected_alarm,
+    //---access to the counter---//
     input wire [63:0] counter,
+    //---display selected alarm---//
     output reg [7:0] alarm_hour_bcd,
     output reg [7:0] alarm_minute_bcd,
     output reg [7:0] alarm_second_bcd,
-    output reg [7:0] alarm_state_bcd,
+    //---ring--//
+    input wire cancel,
     output reg ring
 );
-  localparam EDIT_IDLE = 3'd0;
-  localparam EDIT_TIME = 3'd1;
-  localparam EDIT_ALARM = 3'd2;
-  localparam EDIT_TIMER = 3'd3;
+  //---alarm storage---//
+  reg  [63:0] alarm0_stamp = 64'd0;
+  reg  [63:0] alarm1_stamp = 64'd0;
+  reg  [63:0] alarm2_stamp = 64'd0;
 
-  localparam EDIT_ALARM_NUM = 3'd0;
-  localparam EDIT_SECOND = 3'd1;
-  localparam EDIT_MINUTE = 3'd2;
-  localparam EDIT_HOUR = 3'd3;
-  localparam EDIT_DAY = 3'd4;
-  localparam EDIT_MONTH = 3'd5;
-  localparam EDIT_YEAR = 3'd6;
+  //--convert alarm time to alarm stamp--//
+  reg  [63:0] alarm_stamp_tmp;
+  wire [15:0] year_bcd;
+  wire [ 7:0] month_bcd;
+  wire [ 7:0] day_bcd;
+  wire [ 7:0] hour_bcd;
+  wire [ 7:0] minute_bcd;
+  wire [ 7:0] second_bcd;
+  wire [13:0] year;
+  wire [ 3:0] month;
+  wire [ 4:0] day;
+  wire [ 2:0] weekday;
+  wire [ 4:0] hour;
+  wire [ 5:0] minute;
+  wire [ 5:0] second;
 
-  reg [63:0] alarm1_stamp;
-  reg [63:0] alarm2_stamp;
-  reg [63:0] alarm3_stamp;
+  stamp2time stamp2time0 (
+      .clk(clk),
+      .rst_n(rst_n),
+      .counter(alarm_stamp_tmp),
+      .year_bcd(year_bcd),
+      .month_bcd(month_bcd),
+      .day_bcd(day_bcd),
+      .hour_bcd(hour_bcd),
+      .minute_bcd(minute_bcd),
+      .second_bcd(second_bcd),
+      .year(year),
+      .month(month),
+      .day(day),
+      .weekday(weekday),
+      .hour(hour),
+      .minute(minute),
+      .second(second)
+  );
 
-  reg [ 1:0] selected_alarm = 2'b0;
+  //--switch between 3 alarms--//
+  always @(posedge clk or negedge rst_n) begin
+    if (~rst_n) begin
+      alarm_stamp_tmp <= alarm0_stamp;
+    end else begin
+      case (selected_alarm)
+        2'd0: alarm_stamp_tmp <= alarm0_stamp;
+        2'd1: alarm_stamp_tmp <= alarm0_stamp;
+        2'd2: alarm_stamp_tmp <= alarm0_stamp;
+        default: alarm_stamp_tmp <= alarm0_stamp;
+      endcase
+    end
+  end
+
+  //--output the converted alarm in bcd--//
+  always @(posedge clk or negedge rst_n) begin
+    if (~rst_n) begin
+      alarm_hour_bcd   <= 8'b00000000;
+      alarm_minute_bcd <= 8'b00000000;
+      alarm_second_bcd <= 8'b00000000;
+
+    end else begin
+      alarm_year_bcd  <= year_bcd;
+      alarm_month_bcd <= month_bcd;
+      alarm_day_bcd   <= day_bcd;
+
+    end
+  end
+
+  //--save the traget alarm if the set is 1--//
+  wire [63:0] alarm2save;
+  bcd_time2alarm_time bcd_time2alarm_time0 (
+      .alarm_year_bcd(alarm_year_bcd),
+      .alarm_month_bcd(alarm_month_bcd),
+      .alarm_day_bcd(alarm_day_bcd),
+      .alarm_hour_bcd(alarm_hour_bcd),
+      .alarm_minute_bcd(alarm_minute_bcd),
+      .alarm_second_bcd(alarm_second_bcd),
+      .counter(counter),
+      .alarm_stamp(alarm2save)
+  );
+  always @(posedge clk or negedge rst_n) begin
+    if (~rst_n) begin
+      alarm0_stamp <= 64'd0;
+      alarm1_stamp <= 64'd0;
+      alarm2_stamp <= 64'd0;
+    end else if (set) begin
+      case (selected_alarm)
+        2'd0: alarm0_stamp <= alarm2save;
+        2'd1: alarm1_stamp <= alarm2save;
+        2'd2: alarm2_stamp <= alarm2save;
+        default: alarm0_stamp <= alarm2save;
+      endcase
+    end
+  end
+
+  //--check to ring--//
+  reg [2:0] ring_counter;
+  reg [3:0] snooze_counter;
+  reg ring;
 
   always @(posedge clk or negedge rst_n) begin
     if (~rst_n) begin
-      ;
+      ring <= 1'b0;
+      ring_counter <= 3'd0;
+      snooze_counter <= 4'd0;
     end else begin
-      if ((~up_btn) && (edit_state == EDIT_ALARM))
-        selected_alarm <= selected_alarm == 2'd2 ? 2'd0 : selected_alarm + 2'd1;
-      else if ((~down_btn) && (edit_state == EDIT_ALARM)) begin
-        case (edit_opt)
-          EDIT_YEAR: begin
-
-          end
-          EDIT_MONTH: ;
-          EDIT_DAY: ;
-          EDIT_HOUR: ;
-          EDIT_MINUTE: ;
-          EDIT_SECOND: ;
-          default: ;
-        endcase
+      if (ring) begin
+        if (cancel) begin
+          ring <= 1'b0;
+          ring_counter <= 3'd0;
+          snooze_counter <= 4'd0;
+        end else if (ring_counter < 3'd5) begin
+          ring_counter <= ring_counter + 1;
+        end else if (snooze_counter < 4'd10) begin
+          ring <= 1'b0;
+          snooze_counter <= snooze_counter + 1;
+        end else begin
+          ring <= 1'b1;
+          ring_counter <= 3'd0;
+          snooze_counter <= 4'd0;
+        end
+      end else begin
+        if ((counter == alarm0_stamp) || (counter == alarm1_stamp) || (counter == alarm2_stamp)) begin
+          ring <= 1'b1;
+          ring_counter <= 3'd0;
+          snooze_counter <= 4'd0;
+        end
       end
     end
   end
 
-endmodule
-
-module bcd_time2alarm_time (
-    input  wire [15:0] alarm_year_bcd,
-    input  wire [ 7:0] alarm_month_bcd,
-    input  wire [ 7:0] alarm_day_bcd,
-    input  wire [ 7:0] alarm_hour_bcd,
-    input  wire [ 7:0] alarm_minute_bcd,
-    input  wire [ 7:0] alarm_second_bcd,
-    input  wire [63:0] counter,
-    output wire [63:0] alarm_stamp
-);
-  wire [13:0] year;
-  wire [ 3:0] month;
-  wire [ 4:0] day;
-  wire [ 4:0] hour;
-  wire [ 5:0] minute;
-  wire [ 5:0] second;
-  assign year=1000*alarm_year_bcd[15:12]+100*alarm_year_bcd[11:8]+10*alarm_year_bcd[7:4]+alarm_year_bcd[3:0];
-  assign month = 10 * alarm_month_bcd[7:4] + alarm_month_bcd[3:0];
-  assign day = 10 * alarm_day_bcd[7:4] + alarm_day_bcd[3:0];
-  assign hour = 10 * alarm_hour_bcd[7:4] + alarm_hour_bcd[3:0];
-  assign minute = 10 * alarm_minute_bcd[7:4] + alarm_minute_bcd[3:0];
-  assign second = 10 * alarm_second_bcd[7:4] + alarm_second_bcd[3:0];
-
-
-  wire [63:0] alarm_stamp_tmp;
-
-  time2stamp time2stamp0 (
-      .year(year),
-      .month(month),
-      .day(day),
-      .hour(hour),
-      .minute(minute),
-      .second(second),
-      .time_stamp(time_stamp_tmp)
-  );
-  assign alarm_stamp = alarm_stamp_tmp > counter ? alarm_stamp_tmp : alarm_stamp_tmp + 64'd86400;
 
 endmodule
+

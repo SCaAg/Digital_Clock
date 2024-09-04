@@ -109,7 +109,7 @@ module clock_interface (
       .bcd_max(bcd_editing_max),
       .bcd_out(bcd_editing_incresed)
   );
-
+  // presse down_btn
   always @(posedge clk or negedge rst_n) begin
     if (~rst_n) begin
       bcd_editing <= 16'b0;
@@ -119,9 +119,32 @@ module clock_interface (
       bcd_editing <= bcd_editing_tmp;
     end
   end
+  // press up_btn
+  reg [1:0] selected_alarm = 2'b0;
+  reg timer_reset = 1'b0;
+  always @(posedge clk or negedge rst_n) begin
+    if (~rst_n) begin
+      selected_alarm <= 2'd0;
+      timer_reset <= 1'b0;
+    end else begin
 
-
-
+      if (~up_btn) begin
+        if (edit_state == EDIT_ALARM) begin
+          selected_alarm <= selected_alarm == 2'd2 ? 2'd0 : selected_alarm + 1;
+          timer_reset <= 1'b0;
+        end else if (disp_state == ALARM_DISP) begin
+          selected_alarm <= selected_alarm == 2'd2 ? 2'd0 : selected_alarm + 1;
+          timer_reset <= 1'b0;
+        end else if (disp_state == TIMER_DISP && timer_reset == 1'd0) begin
+          timer_reset <= 1'd1;
+          selected_alarm <= 2'd0;
+        end else begin
+          timer_reset <= 1'd0;
+          selected_alarm <= 2'd0;
+        end
+      end
+    end
+  end
 
 
 
