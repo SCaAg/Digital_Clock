@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-// I have use GPT4o to help me to find the bugs so I think it should work correctly now.
+// This module has been tested in sim_1/new/tb_alarm.v and it works well.
 
 module alarm (
     //--basic input--//
@@ -117,19 +117,27 @@ module alarm (
       if ((counter == alarm0_stamp) || (counter == alarm1_stamp) || (counter == alarm2_stamp)) begin
         ring <= 1'b1;
         ring_counter <= 5'd0;
-      end else if (~cancel) begin
-        if (ring_counter < 5'd5) begin
+      end else if (~cancel && ring) begin
+        if (ring_counter < 5'd4) begin
           ring_counter <= ring_counter + 1;
           ring <= 1'b1;
-        end else if (ring_counter < 5'd15) begin
+        end else if (ring_counter < 5'd14) begin
           ring_counter <= ring_counter + 1;
           ring <= 1'b0;
-        end else if (ring_counter < 5'd20) begin
+        end else if (ring_counter < 5'd19) begin
           ring_counter <= ring_counter + 1;
           ring <= 1'b1;
         end else begin
           ring_counter <= 5'd0;
           ring <= 1'b0;
+        end
+      end else if (~cancel && ~ring && ring_counter >= 5'd4) begin
+        if (ring_counter < 5'd14) begin
+          ring_counter <= ring_counter + 1;
+          ring <= 1'b0;
+        end else begin
+          ring_counter <= ring_counter + 1;
+          ring <= 1'b1;
         end
       end else begin
         ring_counter <= 5'd0;

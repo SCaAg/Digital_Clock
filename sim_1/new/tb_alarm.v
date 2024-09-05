@@ -41,52 +41,83 @@ module tb_alarm ();
   );
 
   // 生成时钟
-  always #5 clk = ~clk;
+  always #1 clk = ~clk;
+  always #2 counter = counter + 1;
 
   // 测试过程
   initial begin
     // 初始化信号
-    clk = 0;
+    clk = 1;
     rst_n = 0;
     set = 0;
-    alarm_year_bcd_in = 16'h2023;
-    alarm_month_bcd_in = 8'h12;
-    alarm_day_bcd_in = 8'h31;
-    alarm_hour_bcd_in = 8'h23;
-    alarm_minute_bcd_in = 8'h59;
-    alarm_second_bcd_in = 8'h59;
-    selected_alarm = 2'b00;
-    counter = 64'd0;
+    counter = 64'd300;
     cancel = 0;
 
     // 复位
     #10 rst_n = 1;
 
-    // 设置闹钟
+    // 设置闹钟1
+    alarm_year_bcd_in = 16'h2024;
+    alarm_month_bcd_in = 8'h01;
+    alarm_day_bcd_in = 8'h01;
+    alarm_hour_bcd_in = 8'h00;
+    alarm_minute_bcd_in = 8'h00;
+    alarm_second_bcd_in = 8'h00;
+    selected_alarm = 2'b00;
     #10 set = 1;
     #10 set = 0;
 
-    // 模拟时间流逝
-    repeat (100) begin
-      #10 counter = counter + 1;
-    end
+    // 设置闹钟2
+    alarm_year_bcd_in = 16'h2024;
+    alarm_month_bcd_in = 8'h01;
+    alarm_day_bcd_in = 8'h01;
+    alarm_hour_bcd_in = 8'h00;
+    alarm_minute_bcd_in = 8'h00;
+    alarm_second_bcd_in = 8'h20;
+    selected_alarm = 2'b01;
+    #10 set = 1;
+    #10 set = 0;
 
-    // 触发闹钟
-    counter = {16'h2023, 8'h12, 8'h31, 8'h23, 8'h59, 8'h59};
-    #20;
+    // 设置闹钟3
+    alarm_year_bcd_in = 16'h2024;
+    alarm_month_bcd_in = 8'h01;
+    alarm_day_bcd_in = 8'h01;
+    alarm_hour_bcd_in = 8'h00;
+    alarm_minute_bcd_in = 8'h00;
+    alarm_second_bcd_in = 8'h30;
+    selected_alarm = 2'b10;
+    #10 set = 1;
+    #10 set = 0;
 
-    // 取消闹钟
-    #50 cancel = 1;
+    //查看闹钟1
+    selected_alarm = 2'b00;
+    #100;
+    $display("alarm_hour_bcd = %h, alarm_minute_bcd = %h, alarm_second_bcd = %h", alarm_hour_bcd,
+             alarm_minute_bcd, alarm_second_bcd);
+    //查看闹钟2
+    selected_alarm = 2'b01;
+    #100;
+    $display("alarm_hour_bcd = %h, alarm_minute_bcd = %h, alarm_second_bcd = %h", alarm_hour_bcd,
+             alarm_minute_bcd, alarm_second_bcd);
+    //查看闹钟3
+    selected_alarm = 2'b10;
+    #100;
+    $display("alarm_hour_bcd = %h, alarm_minute_bcd = %h, alarm_second_bcd = %h", alarm_hour_bcd,
+             alarm_minute_bcd, alarm_second_bcd);
+
+    // 触发闹钟1
+    counter = 64'd1704067199;
+    //闹钟1响，等待40个时钟周期
+    #40;
+    //闹钟2响，等待3个时钟周期后取消
+    #3cancel = 1;
     #10 cancel = 0;
+    //闹钟3响，等待3个时钟周期后取消
+
 
     // 结束仿真
     #100 $finish;
   end
 
-  // 监控输出
-  initial begin
-    $monitor("Time=%0t, Ring=%b, Hour=%h, Minute=%h, Second=%h", $time, ring, alarm_hour_bcd,
-             alarm_minute_bcd, alarm_second_bcd);
-  end
 
 endmodule
