@@ -33,7 +33,7 @@ module count_down_timer_tb ();
   );
 
   // 生成时钟信号
-  always #5 clk = ~clk;
+  always #1 clk = ~clk;
 
   // 测试过程
   initial begin
@@ -60,24 +60,39 @@ module count_down_timer_tb ();
 
     // 等待一段时间并检查输出
     #100;
-    $display("时间: %h:%h:%h", hour_out_bcd, minute_out_bcd, second_out_bcd);
+    $display("设置倒计时时间: %h:%h:%h", hour_out_bcd, minute_out_bcd, second_out_bcd);
 
-    // 测试暂停功能
+    // 开始计时
     pause = 1;
-    #50;
-    $display("暂停后时间: %h:%h:%h", hour_out_bcd, minute_out_bcd, second_out_bcd);
+    #10;
     pause = 0;
+    $display("开始倒计时时间: %h:%h:%h", hour_out_bcd, minute_out_bcd, second_out_bcd);
+    #50;
+    pause = 1;
+    #10;
+    pause = 0;
+    $display("暂停后时间: %h:%h:%h", hour_out_bcd, minute_out_bcd, second_out_bcd);
+    #50;
+    pause = 1;
+    #10;
+    pause = 0;
+    $display("继续倒计时时间: %h:%h:%h", hour_out_bcd, minute_out_bcd, second_out_bcd);
 
     // 测试重置功能
     #50 reset_timer = 1;
     #10 reset_timer = 0;
     $display("重置后时间: %h:%h:%h", hour_out_bcd, minute_out_bcd, second_out_bcd);
 
-    // 等待计时器结束
-    #5000;
-    $display("计时结束时间: %h:%h:%h", hour_out_bcd, minute_out_bcd, second_out_bcd);
-    $display("响铃状态: %b", ring);
-
+    //测试倒计时结束
+    #10;
+    hour_bcd_in = 8'h00;  // 0小时
+    minute_bcd_in = 8'h00;  // 0分钟
+    second_bcd_in = 8'h5;  // 5秒
+    set_timer = 1;
+    #10 set_timer = 0;
+    pause = 1;
+    #10;
+    pause = 0;
     // 结束仿真
     #100 $finish;
   end
