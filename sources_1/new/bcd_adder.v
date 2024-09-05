@@ -1,6 +1,6 @@
 `timescale 1ns / 1ps
 
-// This module is from GitHub so it should be correct.
+// This module has been tested in sim_1/new/tb_bcd_adder.v and it works well.
 
 module bcd_adder (
     input wire [3:0] a,

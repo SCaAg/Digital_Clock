@@ -1,3 +1,4 @@
+// This module has been tested in sim_1/new/tb_bcd2alarm.v and it works.
 module bcd_time2alarm_time (
     input  wire [15:0] alarm_year_bcd,
     input  wire [ 7:0] alarm_month_bcd,

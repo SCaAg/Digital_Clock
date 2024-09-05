@@ -1,4 +1,4 @@
-// This module is from GitHub so it should be correct.
+// This module has been tested in sim_1/new/tb_bin2bcd.v and it works.
 module bin2bcd #(
     parameter W = 18  // input width
 ) (

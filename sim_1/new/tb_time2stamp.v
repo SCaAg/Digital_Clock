@@ -2,59 +2,120 @@
 
 module tb_time2stamp ();
 
-  // å®šä¹‰è¾“å…¥å’Œè¾“å‡ºä¿¡å·
-  reg clk;
-  reg rst_n;
-  reg [7:0] hour;
-  reg [7:0] min;
-  reg [7:0] sec;
-  wire [31:0] stamp;
+  // ÊäÈëĞÅºÅ
+  reg  [13:0] year;
+  reg  [ 3:0] month;
+  reg  [ 4:0] day;
+  reg  [ 4:0] hour;
+  reg  [ 5:0] minute;
+  reg  [ 5:0] second;
 
-  // å®ä¾‹åŒ–è¢«æµ‹è¯•çš„æ¨¡å—
+  // Êä³öĞÅºÅ
+  wire [63:0] time_stamp;
+
+  // ÊµÀı»¯±»²âÊÔÄ£¿é
   time2stamp uut (
-      .clk  (clk),
-      .rst_n(rst_n),
-      .hour (hour),
-      .min  (min),
-      .sec  (sec),
-      .stamp(stamp)
+      .year(year),
+      .month(month),
+      .day(day),
+      .hour(hour),
+      .minute(minute),
+      .second(second),
+      .time_stamp(time_stamp)
   );
 
-  // ç”Ÿæˆæ—¶é’Ÿä¿¡å·
-  always #5 clk = ~clk;
+  // ²âÊÔÓÃÀıÊı×é
+  reg [13:0] test_years[0:9];
+  reg [3:0] test_months[0:9];
+  reg [4:0] test_days[0:9];
+  reg [4:0] test_hours[0:9];
+  reg [5:0] test_minutes[0:9];
+  reg [5:0] test_seconds[0:9];
 
-  // æµ‹è¯•è¿‡ç¨‹
+  integer i;
+
   initial begin
-    // åˆå§‹åŒ–è¾“å…¥
-    clk   = 0;
-    rst_n = 0;
-    hour  = 0;
-    min   = 0;
-    sec   = 0;
+    // ³õÊ¼»¯²âÊÔÓÃÀı
+    test_years[0] = 1970;
+    test_months[0] = 1;
+    test_days[0] = 1;
+    test_hours[0] = 0;
+    test_minutes[0] = 0;
+    test_seconds[0] = 0;
+    test_years[1] = 2000;
+    test_months[1] = 2;
+    test_days[1] = 29;
+    test_hours[1] = 12;
+    test_minutes[1] = 30;
+    test_seconds[1] = 45;
+    test_years[2] = 2024;
+    test_months[2] = 9;
+    test_days[2] = 2;
+    test_hours[2] = 10;
+    test_minutes[2] = 52;
+    test_seconds[2] = 38;
+    test_years[3] = 1999;
+    test_months[3] = 12;
+    test_days[3] = 31;
+    test_hours[3] = 23;
+    test_minutes[3] = 59;
+    test_seconds[3] = 59;
+    test_years[4] = 2100;
+    test_months[4] = 3;
+    test_days[4] = 1;
+    test_hours[4] = 0;
+    test_minutes[4] = 0;
+    test_seconds[4] = 0;
+    test_years[5] = 1971;
+    test_months[5] = 1;
+    test_days[5] = 1;
+    test_hours[5] = 0;
+    test_minutes[5] = 0;
+    test_seconds[5] = 0;
+    test_years[6] = 2023;
+    test_months[6] = 6;
+    test_days[6] = 15;
+    test_hours[6] = 8;
+    test_minutes[6] = 30;
+    test_seconds[6] = 0;
+    test_years[7] = 2050;
+    test_months[7] = 10;
+    test_days[7] = 31;
+    test_hours[7] = 18;
+    test_minutes[7] = 45;
+    test_seconds[7] = 30;
+    test_years[8] = 1980;
+    test_months[8] = 2;
+    test_days[8] = 28;
+    test_hours[8] = 23;
+    test_minutes[8] = 0;
+    test_seconds[8] = 0;
+    test_years[9] = 2222;
+    test_months[9] = 12;
+    test_days[9] = 12;
+    test_hours[9] = 12;
+    test_minutes[9] = 12;
+    test_seconds[9] = 12;
 
-    // å¤ä½
-    #10 rst_n = 1;
+    // ÔËĞĞ²âÊÔÓÃÀı
+    for (i = 0; i < 10; i = i + 1) begin
+      year = test_years[i];
+      month = test_months[i];
+      day = test_days[i];
+      hour = test_hours[i];
+      minute = test_minutes[i];
+      second = test_seconds[i];
 
-    // æµ‹è¯•ç”¨ä¾‹1: 00:00:00
-    #10 hour = 8'd0;
-    min = 8'd0;
-    sec = 8'd0;
-    #10 $display("Time: %02d:%02d:%02d, Stamp: %d", hour, min, sec, stamp);
+      #10;  // µÈ´ı10¸öÊ±¼äµ¥Î»
 
-    // æµ‹è¯•ç”¨ä¾‹2: 12:30:45
-    #10 hour = 8'd12;
-    min = 8'd30;
-    sec = 8'd45;
-    #10 $display("Time: %02d:%02d:%02d, Stamp: %d", hour, min, sec, stamp);
+      $display("²âÊÔÓÃÀı %0d:", i + 1);
+      $display("ÊäÈë: Äê=%0d, ÔÂ=%0d, ÈÕ=%0d, Ê±=%0d, ·Ö=%0d, Ãë=%0d", year, month, day,
+               hour, minute, second);
+      $display("Êä³ö: Ê±¼ä´Á=%0d", time_stamp);
+      $display("------------------------");
+    end
 
-    // æµ‹è¯•ç”¨ä¾‹3: 23:59:59
-    #10 hour = 8'd23;
-    min = 8'd59;
-    sec = 8'd59;
-    #10 $display("Time: %02d:%02d:%02d, Stamp: %d", hour, min, sec, stamp);
-
-    // ç»“æŸä»¿çœŸ
-    #10 $finish;
+    $finish;
   end
 
 endmodule

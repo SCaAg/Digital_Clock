@@ -2,15 +2,15 @@
 
 module bcd_time2alarm_time_tb;
 
-  // è¾“å…¥ä¿¡å·
+  // ÊäÈëĞÅºÅ
   reg [15:0] alarm_year_bcd;
   reg [7:0] alarm_month_bcd, alarm_day_bcd, alarm_hour_bcd, alarm_minute_bcd, alarm_second_bcd;
   reg  [63:0] counter;
 
-  // è¾“å‡ºä¿¡å·
+  // Êä³öĞÅºÅ
   wire [63:0] alarm_stamp;
 
-  // å®ä¾‹åŒ–è¢«æµ‹è¯•æ¨¡å—
+  // ÊµÀı»¯±»²âÊÔÄ£¿é
   bcd_time2alarm_time uut (
       .alarm_year_bcd(alarm_year_bcd),
       .alarm_month_bcd(alarm_month_bcd),
@@ -22,40 +22,40 @@ module bcd_time2alarm_time_tb;
       .alarm_stamp(alarm_stamp)
   );
 
-  // æµ‹è¯•è¿‡ç¨‹
+  // ²âÊÔ¹ı³Ì
   initial begin
-    // æµ‹è¯•ç”¨ä¾‹1
-    alarm_year_bcd   = 16'h2023;  // 2023å¹´
-    alarm_month_bcd  = 8'h05;  // 5æœˆ
-    alarm_day_bcd    = 8'h15;  // 15æ—¥
-    alarm_hour_bcd   = 8'h10;  // 10æ—¶
-    alarm_minute_bcd = 8'h30;  // 30åˆ†
-    alarm_second_bcd = 8'h00;  // 00ç§’
+    // ²âÊÔÓÃÀı1
+    alarm_year_bcd   = 16'h2023;  // 2023Äê
+    alarm_month_bcd  = 8'h05;  // 5ÔÂ
+    alarm_day_bcd    = 8'h15;  // 15ÈÕ
+    alarm_hour_bcd   = 8'h10;  // 10Ê±
+    alarm_minute_bcd = 8'h30;  // 30·Ö
+    alarm_second_bcd = 8'h00;  // 00Ãë
     counter          = 64'd1684130400;  // 2023-05-15 09:00:00
 
-    #10;  // ç­‰å¾…10ä¸ªæ—¶é—´å•ä½
-    $display("æµ‹è¯•ç”¨ä¾‹1:");
-    $display("è¾“å…¥: å¹´=%h, æœˆ=%h, æ—¥=%h, æ—¶=%h, åˆ†=%h, ç§’=%h", alarm_year_bcd,
+    #10;  // µÈ´ı10¸öÊ±¼äµ¥Î»
+    $display("²âÊÔÓÃÀı1:");
+    $display("ÊäÈë: Äê=%h, ÔÂ=%h, ÈÕ=%h, Ê±=%h, ·Ö=%h, Ãë=%h", alarm_year_bcd,
              alarm_month_bcd, alarm_day_bcd, alarm_hour_bcd, alarm_minute_bcd, alarm_second_bcd);
-    $display("å½“å‰æ—¶é—´æˆ³: %d", counter);
-    $display("è¾“å‡ºé—¹é’Ÿæ—¶é—´æˆ³: %d", alarm_stamp);
+    $display("µ±Ç°Ê±¼ä´Á: %d", counter);
+    $display("Êä³öÄÖÖÓÊ±¼ä´Á: %d", alarm_stamp);
     $display("");
 
-    // æµ‹è¯•ç”¨ä¾‹2
-    alarm_year_bcd   = 16'h2023;  // 2023å¹´
-    alarm_month_bcd  = 8'h12;  // 12æœˆ
-    alarm_day_bcd    = 8'h31;  // 31æ—¥
-    alarm_hour_bcd   = 8'h23;  // 23æ—¶
-    alarm_minute_bcd = 8'h59;  // 59åˆ†
-    alarm_second_bcd = 8'h59;  // 59ç§’
+    // ²âÊÔÓÃÀı2
+    alarm_year_bcd   = 16'h2023;  // 2023Äê
+    alarm_month_bcd  = 8'h12;  // 12ÔÂ
+    alarm_day_bcd    = 8'h31;  // 31ÈÕ
+    alarm_hour_bcd   = 8'h0;  // 0Ê±
+    alarm_minute_bcd = 8'h59;  // 59·Ö
+    alarm_second_bcd = 8'h59;  // 59Ãë
     counter          = 64'd1704067199;  // 2023-12-31 23:59:59
 
-    #10;  // ç­‰å¾…10ä¸ªæ—¶é—´å•ä½
-    $display("æµ‹è¯•ç”¨ä¾‹2:");
-    $display("è¾“å…¥: å¹´=%h, æœˆ=%h, æ—¥=%h, æ—¶=%h, åˆ†=%h, ç§’=%h", alarm_year_bcd,
+    #10;  // µÈ´ı10¸öÊ±¼äµ¥Î»
+    $display("²âÊÔÓÃÀı2:");
+    $display("ÄÖÖÓÊ±¼ä: Äê=%h, ÔÂ=%h, ÈÕ=%h, Ê±=%h, ·Ö=%h, Ãë=%h", alarm_year_bcd,
              alarm_month_bcd, alarm_day_bcd, alarm_hour_bcd, alarm_minute_bcd, alarm_second_bcd);
-    $display("å½“å‰æ—¶é—´æˆ³: %d", counter);
-    $display("è¾“å‡ºé—¹é’Ÿæ—¶é—´æˆ³: %d", alarm_stamp);
+    $display("µ±Ç°Ê±¼ä´Á: %d", counter);
+    $display("Êä³öÄÖÖÓÊ±¼ä´Á: %d", alarm_stamp);
 
     $finish;
   end

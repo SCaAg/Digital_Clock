@@ -1,4 +1,5 @@
-// This module has been tested using testbench, so it is right.
+
+// This module has been tested in sim_1/new/tb_unix_convertor.v and it works well.
 
 module unix64_to_UTC (
     input  wire        clk,

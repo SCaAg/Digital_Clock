@@ -1,24 +1,5 @@
 `timescale 1ns / 1ps
-//////////////////////////////////////////////////////////////////////////////////
-// Company: 
-// Engineer: 
-// 
-// Create Date: 2024/08/30 16:14:50
-// Design Name: 
-// Module Name: counter2bcd
-// Project Name: 
-// Target Devices: 
-// Tool Versions: 
-// Description: 
-// 
-// Dependencies: 
-// 
-// Revision:
-// Revision 0.01 - File Created
-// Additional Comments:
-// 
-//////////////////////////////////////////////////////////////////////////////////
-
+// This module has been tested in sim_1/new/tb_stamp2time.v and it works.
 
 module stamp2time (
     //--basic input--//
@@ -56,34 +37,51 @@ module stamp2time (
       .second(second)
   );
 
-  bin2bcd #(14) bin2bcd1 (
+  bin2bcd #(
+      .W(14)
+  ) bin2bcd1 (
       .bin(year),
       .bcd(year_bcd)
   );
 
-  bin2bcd #(4) bin2bcd2 (
+  assign month_bcd[7:5] = 3'b000;
+  bin2bcd #(
+      .W(4)
+  ) bin2bcd2 (
       .bin(month),
-      .bcd(month_bcd)
+      .bcd(month_bcd[4:0])
   );
 
-  bin2bcd #(3) bin2bcd3 (
+  assign day_bcd[7:6] = 2'b00;
+  bin2bcd #(
+      .W(5)
+  ) bin2bcd3 (
       .bin(day),
-      .bcd(day_bcd)
+      .bcd(day_bcd[5:0])
   );
 
-  bin2bcd #(5) bin2bcd4 (
+  assign hour_bcd[7:6] = 2'b00;
+  bin2bcd #(
+      .W(5)
+  ) bin2bcd4 (
       .bin(hour),
-      .bcd(hour_bcd)
+      .bcd(hour_bcd[5:0])
   );
 
-  bin2bcd #(6) bin2bcd5 (
+  assign minute_bcd[7] = 1'b0;
+  bin2bcd #(
+      .W(6)
+  ) bin2bcd5 (
       .bin(minute),
-      .bcd(minute_bcd)
+      .bcd(minute_bcd[6:0])
   );
 
-  bin2bcd #(6) bin2bcd6 (
+  assign second_bcd[7] = 1'b0;
+  bin2bcd #(
+      .W(6)
+  ) bin2bcd6 (
       .bin(second),
-      .bcd(second_bcd)
+      .bcd(second_bcd[6:0])
   );
 
 endmodule

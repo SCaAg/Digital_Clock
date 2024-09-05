@@ -1,15 +1,21 @@
 `timescale 1ns / 1ps
 
-module tb_stamp2time ();
+module stamp2time_tb;
 
-  // 定义输入输出信号
+  // Inputs
   reg clk;
   reg rst_n;
   reg [63:0] counter;
-  wire [15:0] year_bcd;
-  wire [7:0] month_bcd, day_bcd, hour_bcd, minute_bcd, second_bcd;
 
-  // 实例化被测试模块
+  // Outputs
+  wire [15:0] year_bcd;
+  wire [7:0] month_bcd;
+  wire [7:0] day_bcd;
+  wire [7:0] hour_bcd;
+  wire [7:0] minute_bcd;
+  wire [7:0] second_bcd;
+
+  // Instantiate the Unit Under Test (UUT)
   stamp2time uut (
       .clk(clk),
       .rst_n(rst_n),
@@ -22,42 +28,40 @@ module tb_stamp2time ();
       .second_bcd(second_bcd)
   );
 
-  // 生成时钟信号
-  always #5 clk = ~clk;
-
-  // 初始化和测试过程
   initial begin
-    // 初始化信号
+    // Initialize Inputs
     clk = 0;
     rst_n = 0;
-    counter = 0;
+    counter = 64'd0;
 
-    // 复位
-    #10 rst_n = 1;
+    // Wait 100 ns for global reset to finish
+    #100;
+    rst_n   = 1;
 
-    // 测试用例1: 2024年1月1日 00:00:00
-    #10 counter = 64'd1704067200;
-    #20;
-    $display("Test Case 1: 2024-01-01 00:00:00");
-    $display("Year: %d, Month: %d, Day: %d, Hour: %d, Minute: %d, Second: %d", year_bcd, month_bcd,
-             day_bcd, hour_bcd, minute_bcd, second_bcd);
+    // Apply test cases
+    // Example: Unix timestamp for 2023-10-27 10:30:00 UTC is 1698409800
+    counter = 64'd1698409800;
+    #5000;
 
-    // 测试用例2: 2024年8月30日 16:14:50
-    #10 counter = 64'd1724928890;
-    #20;
-    $display("Test Case 2: 2024-08-30 16:14:50");
-    $display("Year: %d, Month: %d, Day: %d, Hour: %d, Minute: %d, Second: %d", year_bcd, month_bcd,
-             day_bcd, hour_bcd, minute_bcd, second_bcd);
+    // Another example: Unix timestamp for 2000-01-01 00:00:00 UTC is 946684800
+    counter = 64'd946684800;
+    #5000;
 
-    // 测试用例3: 2030年12月31日 23:59:59
-    #10 counter = 64'd1924991999;
-    #20;
-    $display("Test Case 3: 2030-12-31 23:59:59");
-    $display("Year: %d, Month: %d, Day: %d, Hour: %d, Minute: %d, Second: %d", year_bcd, month_bcd,
-             day_bcd, hour_bcd, minute_bcd, second_bcd);
+    // Add more test cases as needed
 
-    // 结束仿真
-    #10 $finish;
+
+    $finish;
+  end
+
+  always #1 clk = ~clk;
+
+  always @(posedge clk) begin
+    if (rst_n) begin
+      $display("Time: Year=%d%d%d%d, Month=%d%d, Day=%d%d, Hour=%d%d, Minute=%d%d, Second=%d%d",
+               year_bcd[15:12], year_bcd[11:8], year_bcd[7:4], year_bcd[3:0], month_bcd[7:4],
+               month_bcd[3:0], day_bcd[7:4], day_bcd[3:0], hour_bcd[7:4], hour_bcd[3:0],
+               minute_bcd[7:4], minute_bcd[3:0], second_bcd[7:4], second_bcd[3:0]);
+    end
   end
 
 endmodule
