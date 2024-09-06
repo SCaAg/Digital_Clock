@@ -1,3 +1,6 @@
+
+// This module has been tested in sim_1/new/tb_unix_convertor.v and it works well.
+
 module unix64_to_UTC (
     input  wire        clk,
     input  wire        rst_n,

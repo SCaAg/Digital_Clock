@@ -33,7 +33,6 @@ module clock_interface (
   localparam DATE_DISP = 3'd1;
   localparam ALARM_DISP = 3'd2;
   localparam TIMER_DISP = 3'd3;
-  localparam STOP_WATCH_DISP = 3'd4;
   reg [2:0] disp_state = TIME_DISP;
 
   localparam EDIT_IDLE = 3'd0;
@@ -59,7 +58,7 @@ module clock_interface (
     end else if (~mode_btn) begin
       // not in the edit state
       if (edit_state == EDIT_IDLE) begin
-        disp_state <= disp_state == 3'd4 ? 3'd0 : disp_state + 1;
+        disp_state <= disp_state == 3'd3 ? 3'd0 : disp_state + 1;
       end  // in edit state
       else begin
         case (edit_state)
@@ -95,10 +94,7 @@ module clock_interface (
     end
   end
 
-
-
-
-
+  // presse down_btn
   reg  [15:0] bcd_editing = 16'd0;
   reg  [15:0] bcd_editing_tmp = 16'd0;
   reg  [15:0] bcd_editing_max = 16'd9999;
@@ -109,7 +105,7 @@ module clock_interface (
       .bcd_max(bcd_editing_max),
       .bcd_out(bcd_editing_incresed)
   );
-  // presse down_btn
+
   always @(posedge clk or negedge rst_n) begin
     if (~rst_n) begin
       bcd_editing <= 16'b0;
@@ -148,56 +144,82 @@ module clock_interface (
 
 
 
-  reg  [ 5:0] led0;  //5:blink,4:dot,[3:0]:bcd
-  reg  [ 5:0] led1;
-  reg  [ 5:0] led2;
-  reg  [ 5:0] led3;
-  reg  [ 5:0] led4;
-  reg  [ 5:0] led5;
-  reg  [ 5:0] led6;
-  reg  [ 5:0] led7;
+  reg [5:0] led0;  //5:blink,4:dot,[3:0]:bcd
+  reg [5:0] led1;
+  reg [5:0] led2;
+  reg [5:0] led3;
+  reg [5:0] led4;
+  reg [5:0] led5;
+  reg [5:0] led6;
+  reg [5:0] led7;
 
-  reg  [ 5:0] led0_tmp;  //5:blink,4:dot,[3:0]:bcd
-  reg  [ 5:0] led1_tmp;
-  reg  [ 5:0] led2_tmp;
-  reg  [ 5:0] led3_tmp;
-  reg  [ 5:0] led4_tmp;
-  reg  [ 5:0] led5_tmp;
-  reg  [ 5:0] led6_tmp;
-  reg  [ 5:0] led7_tmp;
+  reg [5:0] led0_tmp;  //5:blink,4:dot,[3:0]:bcd
+  reg [5:0] led1_tmp;
+  reg [5:0] led2_tmp;
+  reg [5:0] led3_tmp;
+  reg [5:0] led4_tmp;
+  reg [5:0] led5_tmp;
+  reg [5:0] led6_tmp;
+  reg [5:0] led7_tmp;
 
-  wire [15:0] year_bcd;
-  wire [ 7:0] month_bcd;
-  wire [ 7:0] day_bcd;
-  wire [ 7:0] hour_bcd;
-  wire [ 7:0] minute_bcd;
-  wire [ 7:0] second_bcd;
-  wire [13:0] year;
-  wire [ 3:0] month;
-  wire [ 4:0] day;
-  wire [ 2:0] weekday;
-  wire [ 4:0] hour;
-  wire [ 5:0] minute;
-  wire [ 5:0] second;
 
-  stamp2time stamp2time0 (
+  reg set;
+  wire [15:0] alarm_year_bcd_in;
+  wire [7:0] alarm_month_bcd_in;
+  wire [7:0] alarm_day_bcd_in;
+  wire [7:0] alarm_hour_bcd_in;
+  wire [7:0] alarm_minute_bcd_in;
+  wire [7:0] alarm_second_bcd_in;
+  wire [7:0] alarm_hour_bcd;
+  wire [7:0] alarm_minute_bcd;
+  wire [7:0] alarm_second_bcd;
+  reg cancel;
+  wire ring;
+
+  alarm alarm_instance (
       .clk(clk),
       .rst_n(rst_n),
+      .set(set),
+      .alarm_year_bcd_in(alarm_year_bcd_in),
+      .alarm_month_bcd_in(alarm_month_bcd_in),
+      .alarm_day_bcd_in(alarm_day_bcd_in),
+      .alarm_hour_bcd_in(alarm_hour_bcd_in),
+      .alarm_minute_bcd_in(alarm_minute_bcd_in),
+      .alarm_second_bcd_in(alarm_second_bcd_in),
+      .selected_alarm(selected_alarm),
       .counter(counter),
-      .year_bcd(year_bcd),
-      .month_bcd(month_bcd),
-      .day_bcd(day_bcd),
-      .hour_bcd(hour_bcd),
-      .minute_bcd(minute_bcd),
-      .second_bcd(second_bcd),
-      .year(year),
-      .month(month),
-      .day(day),
-      .weekday(weekday),
-      .hour(hour),
-      .minute(minute),
-      .second(second)
+      .alarm_hour_bcd(alarm_hour_bcd),
+      .alarm_minute_bcd(alarm_minute_bcd),
+      .alarm_second_bcd(alarm_second_bcd),
+      .cancel(cancel),
+      .ring(ring)
   );
+  // 计时器相关的寄存器和线
+  reg load;
+  reg clock_en;
+  reg [7:0] timer_hour_bcd_in;
+  reg [7:0] timer_minute_bcd_in;
+  reg [7:0] timer_second_bcd_in;
+  wire [7:0] timer_hour_out_bcd;
+  wire [7:0] timer_minute_out_bcd;
+  wire [7:0] timer_second_out_bcd;
+  wire timer_ring;
+
+  // 实例化计时器模块
+  count_down_timer timer_instance (
+      .clk(clk),
+      .rst_n(rst_n),
+      .load(load),
+      .clock_en(clock_en),
+      .hour_bcd_in(timer_hour_bcd_in),
+      .minute_bcd_in(timer_minute_bcd_in),
+      .second_bcd_in(timer_second_bcd_in),
+      .hour_out_bcd(timer_hour_out_bcd),
+      .minute_out_bcd(timer_minute_out_bcd),
+      .second_out_bcd(timer_second_out_bcd),
+      .ring(timer_ring)
+  );
+
 
   always @(posedge clk or negedge rst_n) begin
     //显示状态
@@ -224,11 +246,28 @@ module clock_interface (
           led0_tmp <= {2'b00, day_bcd[3:0]};
         end
         ALARM_DISP: begin
-
+          led7_tmp <= {2'b01, 2'd0, selected_alarm};
+          led6_tmp <= {2'b01, 4'd10};
+          led5_tmp <= {2'b01, alarm_hour_bcd[7:4]};
+          led4_tmp <= {2'b01, alarm_hour_bcd[3:0]};
+          led3_tmp <= {2'b01, alarm_minute_bcd[7:4]};
+          led2_tmp <= {2'b01, alarm_minute_bcd[3:0]};
+          led1_tmp <= {2'b01, alarm_second_bcd[7:4]};
+          led0_tmp <= {2'b01, alarm_second_bcd[3:0]};
         end
-        TIMER_DISP: edit_state <= EDIT_TIMER;
+        TIMER_DISP: begin
+          led7_tmp <= {2'b01, timer_hour_out_bcd[7:4]};
+          led6_tmp <= {2'b01, timer_hour_out_bcd[3:0]};
+          led5_tmp <= {2'b01, 4'd10};
+          led4_tmp <= {2'b01, timer_minute_out_bcd[7:4]};
+          led3_tmp <= {2'b01, timer_minute_out_bcd[3:0]};
+          led2_tmp <= {2'b01, 4'd10};
+          led1_tmp <= {2'b01, timer_second_out_bcd[7:4]};
+          led0_tmp <= {2'b01, timer_second_out_bcd[3:0]};
+        end
         default: edit_state <= EDIT_IDLE;
       endcase
+      //编辑状态
     end else begin
 
     end
