@@ -1,9 +1,9 @@
+// This module has been tested in sim_1/new/tb_count_down_timer.v and it works well.
 module count_down_timer (
-    input wire clk,
+    input wire clk,  //in 1kHz
     input wire rst_n,
-    input wire set_timer,
-    input wire reset_timer,
-    input wire pause,
+    input wire load,
+    input wire clock_en,
     input wire [7:0] hour_bcd_in,
     input wire [7:0] minute_bcd_in,
     input wire [7:0] second_bcd_in,
@@ -13,41 +13,31 @@ module count_down_timer (
     output reg ring = 1'b0
 );
 
-  wire [15:0] total_seconds_in;
-  assign total_seconds_in = (hour_bcd_in[7:4] * 10 + hour_bcd_in[3:0]) * 3600 + (minute_bcd_in[7:4] * 10 + minute_bcd_in[3:0]) * 60 + (second_bcd_in[7:4] * 10 + second_bcd_in[3:0]);
+  wire [31:0] total_seconds_in;
+  assign total_seconds_in = ((hour_bcd_in[7:4] * 10 + hour_bcd_in[3:0]) * 3600 + (minute_bcd_in[7:4] * 10 + minute_bcd_in[3:0]) * 60 + (second_bcd_in[7:4] * 10 + second_bcd_in[3:0]))*1000;
 
-  reg [15:0] total_seconds = 16'b0000000000000000;
-  reg [15:0] total_seconds_backup = 16'b0000000000000000;
-
-  reg count_down_timer_en = 1'b0;
+  wire time_up;
+  wire [31:0] total_seconds;
+  wire enable;
+  assign enable = clock_en | load;
+  c_counter_binary_0 uut (
+      .CLK(clk),
+      .CE(enable),
+      .LOAD(load),
+      .L(total_seconds_in),
+      .THRESH0(time_up),
+      .Q(total_seconds)
+  );
 
   always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
-      total_seconds <= 16'b0000000000000000;
-      total_seconds_backup <= 16'b0000000000000000;
-      count_down_timer_en <= 1'b0;
       ring <= 1'b0;
-    end else if (set_timer) begin
-      total_seconds <= total_seconds_in;
-      total_seconds_backup <= total_seconds_in;
-      ring <= 1'b0;
-      count_down_timer_en <= 1'b0;
-    end else if (reset_timer) begin
-      total_seconds <= total_seconds_backup;
-      ring <= 1'b0;
-      count_down_timer_en <= 1'b0;
-    end else if (pause) begin
-      total_seconds <= total_seconds;
-      ring <= 1'b0;
-      count_down_timer_en <= ~count_down_timer_en;
-    end else if (total_seconds > 0 && count_down_timer_en) begin
-      total_seconds <= total_seconds - 1;
-      ring <= 1'b0;
-      count_down_timer_en <= 1'b1;
-    end else begin
-      total_seconds <= total_seconds;
+    end else if (time_up) begin
       ring <= 1'b1;
-      count_down_timer_en <= 1'b0;
+    end else if (load) begin
+      ring <= 1'b0;
+    end else begin
+      ring <= ring;
     end
   end
 
@@ -60,9 +50,9 @@ module count_down_timer (
       minute_out <= 8'b00000000;
       second_out <= 8'b00000000;
     end else begin
-      hour_out   <= total_seconds / 3600;
-      minute_out <= (total_seconds % 3600) / 60;
-      second_out <= total_seconds % 60;
+      hour_out   <= (total_seconds / 1000) / 3600;
+      minute_out <= ((total_seconds / 1000) % 3600) / 60;
+      second_out <= (total_seconds / 1000) % 60;
     end
   end
 
