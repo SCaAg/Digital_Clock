@@ -42,14 +42,13 @@ module clock_interface (
   localparam EDIT_TIMER = 3'd3;
   reg [2:0] edit_state = EDIT_IDLE;
 
-  localparam EDIT_ALARM_NUM = 3'd0;
+  localparam EDIT_ALARM_NUM = 3'd0;  //depracated
   localparam EDIT_SECOND = 3'd1;
   localparam EDIT_MINUTE = 3'd2;
   localparam EDIT_HOUR = 3'd3;
   localparam EDIT_DAY = 3'd4;
   localparam EDIT_MONTH = 3'd5;
   localparam EDIT_YEAR = 3'd6;
-
   reg [2:0] edit_opt = EDIT_HOUR;
 
   // pressed mode_btn
@@ -73,6 +72,7 @@ module clock_interface (
     end
   end
 
+  reg need_to_save = 1'b0;
   // pressed adjust_btn
   always @(posedge clk or negedge rst_n) begin
     if (~rst_n) begin
@@ -87,9 +87,10 @@ module clock_interface (
           TIMER_DISP: edit_state <= EDIT_TIMER;
           default: edit_state <= EDIT_IDLE;
         endcase
-      end  // TODO already in edit mode, need to save and exit
-      else begin
-        edit_state <= EDIT_IDLE;
+      end else begin
+        // already in edit mode, need to save and exit
+        edit_state   <= EDIT_IDLE;
+        need_to_save <= 1'b1;
       end
     end
   end
@@ -98,21 +99,50 @@ module clock_interface (
 
 
 
-  wire [15:0] bcd_editing;
-  reg  [15:0] bcd_editing_tmp;
-  reg  [15:0] bcd_editing_max;
-  bcd_increment_16bit bcd_increment (
-      .bcd_in (bcd_editing_tmp),
-      .bcd_max(bcd_editing_max),
-      .bcd_out(bcd_editing),
-  );
+  reg  [15:0] bcd_editing = 16'd0;
+  reg  [15:0] bcd_editing_tmp = 16'd0;
+  reg  [15:0] bcd_editing_max = 16'd9999;
+  wire [15:0] bcd_editing_incresed;
 
-  // pressed down_btn
+  bcd_increment_16bit bcd_increment (
+      .bcd_in (bcd_editing),
+      .bcd_max(bcd_editing_max),
+      .bcd_out(bcd_editing_incresed)
+  );
+  // presse down_btn
   always @(posedge clk or negedge rst_n) begin
     if (~rst_n) begin
+      bcd_editing <= 16'b0;
       bcd_editing_tmp <= 16'b0;
     end else if (~down_btn) begin
-      bcd_editing_tmp <= bcd_editing;
+      bcd_editing_tmp <= bcd_editing_incresed;
+      bcd_editing <= bcd_editing_tmp;
+    end
+  end
+  // press up_btn
+  reg [1:0] selected_alarm = 2'b0;
+  reg timer_reset = 1'b0;
+  always @(posedge clk or negedge rst_n) begin
+    if (~rst_n) begin
+      selected_alarm <= 2'd0;
+      timer_reset <= 1'b0;
+    end else begin
+
+      if (~up_btn) begin
+        if (edit_state == EDIT_ALARM) begin
+          selected_alarm <= selected_alarm == 2'd2 ? 2'd0 : selected_alarm + 1;
+          timer_reset <= 1'b0;
+        end else if (disp_state == ALARM_DISP) begin
+          selected_alarm <= selected_alarm == 2'd2 ? 2'd0 : selected_alarm + 1;
+          timer_reset <= 1'b0;
+        end else if (disp_state == TIMER_DISP && timer_reset == 1'd0) begin
+          timer_reset <= 1'd1;
+          selected_alarm <= 2'd0;
+        end else begin
+          timer_reset <= 1'd0;
+          selected_alarm <= 2'd0;
+        end
+      end
     end
   end
 
@@ -168,42 +198,65 @@ module clock_interface (
       .minute(minute),
       .second(second)
   );
+
+  always @(posedge clk or negedge rst_n) begin
+    //显示状态
+    if (edit_state == EDIT_IDLE) begin
+      case (disp_state)
+        TIME_DISP: begin
+          led7_tmp <= {2'b01, hour_bcd[7:4]};
+          led6_tmp <= {2'b01, hour_bcd[3:0]};
+          led5_tmp <= {2'b01, 4'd10};
+          led4_tmp <= {2'b01, minute_bcd[7:4]};
+          led3_tmp <= {2'b01, minute_bcd[3:0]};
+          led2_tmp <= {2'b01, 4'd10};
+          led1_tmp <= {2'b01, second_bcd[7:4]};
+          led0_tmp <= {2'b01, second_bcd[3:0]};
+        end
+        DATE_DISP: begin
+          led7_tmp <= {2'b01, year_bcd[15:12]};
+          led6_tmp <= {2'b01, year_bcd[11:8]};
+          led5_tmp <= {2'b01, year_bcd[7:4]};
+          led4_tmp <= {2'b00, year_bcd[3:0]};
+          led3_tmp <= {2'b01, month_bcd[7:4]};
+          led2_tmp <= {2'b00, month_bcd[3:0]};
+          led1_tmp <= {2'b01, day_bcd[7:4]};
+          led0_tmp <= {2'b00, day_bcd[3:0]};
+        end
+        ALARM_DISP: begin
+
+        end
+        TIMER_DISP: edit_state <= EDIT_TIMER;
+        default: edit_state <= EDIT_IDLE;
+      endcase
+    end else begin
+
+    end
+
+  end
+
+
+
   // led drive block
   always @(posedge clk or negedge rst_n) begin
     if (~rst_n) begin
-
+      led0 <= 6'b010000;
+      led1 <= 6'b010000;
+      led2 <= 6'b010000;
+      led3 <= 6'b010000;
+      led4 <= 6'b010000;
+      led5 <= 6'b010000;
+      led6 <= 6'b010000;
+      led7 <= 6'b010000;
     end else begin
-      // in the display mode
-      if (edit_state == EDIT_IDLE) begin
-        case (disp_state)
-          TIME_DISP: begin
-            led7 <= {2'b01, hour_bcd[7:4]};
-            led6 <= {2'b01, hour_bcd[3:0]};
-            led5 <= {2'b01, 4'd10};
-            led4 <= {2'b01, minute_bcd[7:4]};
-            led3 <= {2'b01, minute_bcd[3:0]};
-            led2 <= {2'b01, 4'd10};
-            led1 <= {2'b01, second_bcd[7:4]};
-            led0 <= {2'b01, second_bcd[3:0]};
-          end
-          DATE_DISP: begin
-            led7 <= {2'b01, year_bcd[15:12]};
-            led6 <= {2'b01, year_bcd[11:8]};
-            led5 <= {2'b01, year_bcd[7:4]};
-            led4 <= {2'b00, year_bcd[3:0]};
-            led3 <= {2'b01, month_bcd[7:4]};
-            led2 <= {2'b00, month_bcd[3:0]};
-            led1 <= {2'b01, second_bcd[7:4]};
-            led0 <= {2'b00, second_bcd[3:0]};
-          end
-          ALARM_DISP: begin
-
-          end
-          TIMER_DISP: edit_state <= EDIT_TIMER;
-          STOP_WATCH_DISP: edit_state <= EDIT_IDLE;
-          default: ;
-        endcase
-      end
+      led0 <= led0_tmp;
+      led1 <= led1_tmp;
+      led2 <= led2_tmp;
+      led3 <= led3_tmp;
+      led4 <= led4_tmp;
+      led5 <= led5_tmp;
+      led6 <= led6_tmp;
+      led7 <= led7_tmp;
     end
   end
 endmodule
