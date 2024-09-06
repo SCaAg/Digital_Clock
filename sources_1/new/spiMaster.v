@@ -18,11 +18,7 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-<<<<<<< HEAD
 //spi主机
-=======
-//spi����
->>>>>>> 78b2ff98e101b490798a034122964a86c62cd94e
 //
 
 module spiMaster (
@@ -35,7 +31,6 @@ module spiMaster (
     input [7:0] spi_data_out,
     input spi_send,
 
-<<<<<<< HEAD
     output reg spi_send_done,
     input clk,
     input reset_n,
@@ -54,7 +49,7 @@ module spiMaster (
             delay_count<=0;
             sck_reg<=0;
         end*/
-        if(delay_count==100) begin
+        if(delay_count==4) begin
         //if(delay_count==3) begin
             delay_count<=0;
             sck_reg<=~sck_reg;
@@ -115,8 +110,4 @@ module spiMaster (
         end
         else if(spi_send)
             reg_data<=spi_data_out;
-=======
-    output reg spi_send_done
-);
->>>>>>> 78b2ff98e101b490798a034122964a86c62cd94e
 endmodule

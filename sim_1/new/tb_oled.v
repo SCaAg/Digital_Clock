@@ -59,7 +59,7 @@ module tb_oled();
     wire [7:0] oled_draw_spi_data;
     wire oled_draw_dc;
     
-    oledDraw oledDraw1(
+    oledDrawv2 oledDraw1(
         .clk(spi_clk),
         .reset_n(reset_n),
         .send_done(spi_send_done),
