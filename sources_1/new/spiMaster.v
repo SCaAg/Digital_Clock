@@ -59,13 +59,14 @@ module spiMaster (
             delay_count<=0;
             sck_reg<=0;
         end*/
-    if (delay_count == 100) begin
-      //if(delay_count==3) begin
-      delay_count <= 0;
-      sck_reg <= ~sck_reg;
-    end else delay_count <= delay_count + 1;
-  end
-  assign spi_clk = sck_reg;
+        if(delay_count==4) begin
+        //if(delay_count==3) begin
+            delay_count<=0;
+            sck_reg<=~sck_reg;
+        end
+        else delay_count<=delay_count+1;
+    end
+    assign spi_clk=sck_reg;
 
   always @(*)
     if (cs) sck = 1;
@@ -99,16 +100,22 @@ module spiMaster (
     else if (cur_st == DATA) cs <= 0;
     else cs <= 1;
 
-  always @(posedge sck_reg)
-    if (!reset_n) count <= 0;
-    else if (cur_st == DATA) count <= count + 1;
-    else if (cur_st == IDLE | cur_st == FINISH) count <= 0;
-
-  always @(negedge sck_reg)
-    if (!reset_n) mosi <= 0;
-    else if (cur_st == DATA) begin
-      reg_data[7:1] <= reg_data[6:0];
-      mosi <= reg_data[7];
-    end else if (spi_send) reg_data <= spi_data_out;
-  output reg spi_send_done;
+    always@(posedge sck_reg)
+        if(!reset_n)
+            count<=0;
+        else if(cur_st==DATA)
+            count<=count+1;
+        else if(cur_st==IDLE | cur_st==FINISH)
+            count<=0;
+    
+    always@(negedge sck_reg)
+        if(!reset_n)
+            mosi<=0;	
+        else if(cur_st==DATA)
+        begin
+            reg_data[7:1]<=reg_data[6:0];
+            mosi<=reg_data[7];
+        end
+        else if(spi_send)
+            reg_data<=spi_data_out;
 endmodule
