@@ -1,40 +1,62 @@
 // This module has been tested in sim_1/new/tb_count_down_timer.v and it works well.
 module count_down_timer (
-    input wire clk,  //in 1kHz
+    input wire clk_50M,  //in 1kHz
+    input wire clk_1k,
     input wire rst_n,
-    input wire load,
-    input wire clock_en,
+    input wire set,
+    input wire play,
+    input wire stop,
     input wire [7:0] hour_bcd_in,
     input wire [7:0] minute_bcd_in,
     input wire [7:0] second_bcd_in,
     output wire [7:0] hour_out_bcd,
     output wire [7:0] minute_out_bcd,
     output wire [7:0] second_out_bcd,
-    output reg ring = 1'b0
+    output reg ring = 1'b0,
+    output reg counting = 1'b0
 );
 
   wire [31:0] total_seconds_in;
   assign total_seconds_in = ((hour_bcd_in[7:4] * 10 + hour_bcd_in[3:0]) * 3600 + (minute_bcd_in[7:4] * 10 + minute_bcd_in[3:0]) * 60 + (second_bcd_in[7:4] * 10 + second_bcd_in[3:0]))*1000;
 
-  wire time_up;
+
+
+
+
+  wire threshold;
+  reg  enable = 1'b0;
+  always @(posedge clk_50M or negedge rst_n) begin
+    if (!rst_n) begin
+      enable <= 1'b0;
+    end else if (play) begin
+      enable <= 1'b1;
+    end else if (stop) begin
+      enable <= 1'b0;
+    end else if (threshold) begin
+      enable <= 1'b0;
+    end else if (set) begin
+      enable <= 1'b0;
+    end else begin
+      enable <= enable;
+    end
+  end
+
   wire [31:0] total_seconds;
-  wire enable;
-  assign enable = clock_en | load;
   c_counter_binary_0 uut (
-      .CLK(clk),
-      .CE(enable),
-      .LOAD(load),
+      .CLK(clk_1k),
+      .CE(enable || set),
+      .LOAD(set),
       .L(total_seconds_in),
-      .THRESH0(time_up),
+      .THRESH0(threshold),
       .Q(total_seconds)
   );
 
-  always @(posedge clk or negedge rst_n) begin
+  always @(posedge clk_50M or negedge rst_n) begin
     if (!rst_n) begin
       ring <= 1'b0;
-    end else if (time_up) begin
+    end else if (threshold) begin
       ring <= 1'b1;
-    end else if (load) begin
+    end else if (set) begin
       ring <= 1'b0;
     end else begin
       ring <= ring;
@@ -44,7 +66,7 @@ module count_down_timer (
   reg [7:0] hour_out = 8'b00000000;
   reg [7:0] minute_out = 8'b00000000;
   reg [7:0] second_out = 8'b00000000;
-  always @(posedge clk or negedge rst_n) begin
+  always @(posedge clk_1k or negedge rst_n) begin
     if (!rst_n) begin
       hour_out   <= 8'b00000000;
       minute_out <= 8'b00000000;
@@ -72,4 +94,19 @@ module count_down_timer (
       .bcd(second_out_bcd[6:0])
   );
 
+  always @(posedge clk_50M or negedge rst_n) begin
+    if (!rst_n) begin
+      counting <= 1'b0;
+    end else if (set) begin
+      counting <= 1'b0;
+    end else if (play) begin
+      counting <= 1'b1;
+    end else if (stop) begin
+      counting <= 1'b0;
+    end else if (threshold) begin
+      counting <= 1'b0;
+    end else begin
+      counting <= counting;
+    end
+  end
 endmodule
