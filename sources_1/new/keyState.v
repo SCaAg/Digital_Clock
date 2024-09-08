@@ -18,9 +18,9 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-//ÊäÈë clk Ê±ÖÓ key_vaild °´¼üÊÇ·ñÓĞĞ§ key_code °´¼ü±àÂë 
-//Êä³ö key0_state key1_state key2_state key3_state key4_state key5_state °´¼ü×´Ì¬
-//°´¼ü×´Ì¬ 0£º°´¼üÊÍ·Å 1£º°´¼ü¶Ì°´ 2£º°´¼üÊÍ·Å 3£º°´¼ü³¤°´
+//é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹· clk æ—¶é”Ÿæ–¤æ‹· key_vaild é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿè§’å‡¤æ‹·é”Ÿæ–¤æ‹·æ•ˆ key_code é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹· 
+//é”Ÿæ–¤æ‹·é”Ÿï¿½ key0_state key1_state key2_state key3_state key4_state key5_state é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·çŠ¶æ€
+//é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·çŠ¶æ€ 0é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿé…µå‡¤æ‹· 1é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ•™å¸®æ‹· 2é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿé…µå‡¤æ‹· 3é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·é”Ÿæ–¤æ‹·
 
 module keyState(
     input clk,
@@ -37,7 +37,8 @@ module keyState(
     reg[26-1:0] fenpingCounter;
     localparam fenpingM=50000;
     //localparam fenpingM=2;
-    wire clk_1kHz; //1kHz·ÖÆµ
+    wire clk_1kHz; //1kHzé”Ÿæ–¤æ‹·é¢‘
+    reg [31:0] counter;
     always @(posedge clk) begin
         if(!reset_n)begin
             fenpingCounter<=0;
@@ -51,28 +52,71 @@ module keyState(
     end
     assign clk_1kHz=(fenpingCounter==fenpingM)?1'b1:1'b0;
 
+    reg [3:0]st;
+    localparam STABLE=0,DOUDONG=1;
+    reg [3:0] before_key;
+
     always @(posedge clk_1kHz)begin
         if(key_vaild)begin
-            case(key_code)
-                4'b0000:begin
-                    key0_state<=1;
-                end
-                4'b0001:begin
-                    key1_state<=1;
-                end
-                4'b0010:begin
-                    key2_state<=1;
-                end
-                4'b0011:begin
-                    key3_state<=1;
-                end
-                4'b0100:begin
-                    key4_state<=1;
-                end
-                4'b0101:begin
-                    key5_state<=1;
-                end
-            endcase
+            if(before_key!=key_code)begin
+                counter<=0;
+                before_key<=key_code;
+            end
+            else begin
+                counter<=counter+1;
+            end
+            if(counter>=1000)begin
+                case(key_code)
+                    4'hd:begin
+                        key0_state<=2;
+                    end
+                    4'h5:begin
+                        key1_state<=2;
+                    end
+                    4'h8:begin
+                        key2_state<=2;
+                    end
+                    4'ha:begin
+                        key3_state<=2;
+                    end
+                    4'h0:begin
+                        key4_state<=2;
+                    end
+                    4'h9:begin
+                        key5_state<=2;
+                    end
+                endcase
+            end
+            else if(counter>=20)begin
+                case(key_code)
+                    4'hd:begin
+                        key0_state<=1;
+                    end
+                    4'h5:begin
+                        key1_state<=1;
+                    end
+                    4'h8:begin
+                        key2_state<=1;
+                    end
+                    4'ha:begin
+                        key3_state<=1;
+                    end
+                    4'h0:begin
+                        key4_state<=1;
+                    end
+                    4'h9:begin
+                        key5_state<=1;
+                    end
+                endcase
+            end
+            else begin
+                key0_state<=0;
+                key1_state<=0;
+                key2_state<=0;
+                key3_state<=0;
+                key4_state<=0;
+                key5_state<=0;
+            end
         end
         else begin
             key0_state<=0;
@@ -81,6 +125,7 @@ module keyState(
             key3_state<=0;
             key4_state<=0;
             key5_state<=0;
+            counter<=0;
         end
     end
 

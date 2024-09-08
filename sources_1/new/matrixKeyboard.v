@@ -19,23 +19,23 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-//矩阵键盘扫描
-//输入：clk 时钟信号 reset_n 复位信号 row[3:0] 行信号
-//输出：col 列信号 key_vaild 按键有效信号 key_code[3:0] 按键编码
+//锟斤拷锟斤拷锟斤拷锟缴拷锟�
+//锟斤拷锟诫：clk 时锟斤拷锟脚猴拷 reset_n 锟斤拷位锟脚猴拷 row[3:0] 锟斤拷锟脚猴拷
+//锟斤拷锟斤拷锟絚ol 锟斤拷锟脚猴拷 key_vaild 锟斤拷锟斤拷锟斤拷效锟脚猴拷 key_code[3:0] 锟斤拷锟斤拷锟斤拷锟斤拷
 module matrixKeyboard(
 	input clk,  //50MHZ
-	input reset_n, //复位高电平有效
-	input [3:0] row,  //行
-	output reg [3:0] col,   //列
+	input reset_n, //锟斤拷位锟竭碉拷平锟斤拷效
+	input [3:0] row,  //锟斤拷
+	output reg [3:0] col,   //锟斤拷
 	output key_vaild,
-	output reg [3:0] key_code  //键值
+	output reg [3:0] key_code  //锟斤拷值
     );
-    reg key_flag; //按键标志位
-    reg [2:0]state=0;  //状态机状态
-    reg clk_500khz;  //500KHZ时钟信号
-    reg [5:0] counter;  //计数器
-    reg [3:0] col_reg;  //寄存扫描列值
-	reg [3:0] row_reg;  //寄存扫描行值
+    reg key_flag; //锟斤拷锟斤拷锟斤拷志位
+    reg [2:0]state=0;  //状态锟斤拷状态
+    reg clk_500khz;  //500KHZ时锟斤拷锟脚猴拷
+    reg [5:0] counter;  //锟斤拷锟斤拷锟斤拷
+    reg [3:0] col_reg;  //锟侥达拷扫锟斤拷锟斤拷值
+	reg [3:0] row_reg;  //锟侥达拷扫锟斤拷锟斤拷值
     localparam counterN =50 ;
     //localparam counterN=2 ;
     assign key_vaild = key_flag;
@@ -59,38 +59,38 @@ module matrixKeyboard(
             state<=0;
         end
         else begin
-            case(state)//扫描开始
+            case(state)//扫锟借开始
                 0: begin
                     col <= 4'b0000;
                     key_flag<=1'b0;
-                    if(row[3:0]!=4'b1111) begin state<=1;col[3:0]<=4'b1110;end //有键按下，扫描第一行
+                    if(row[3:0]!=4'b1111) begin state<=1;col[3:0]<=4'b1110;end //锟叫硷拷锟斤拷锟铰ｏ拷扫锟斤拷锟揭伙拷锟�
                     else state<=0;
                 end
                 1: begin
-                    if(row[3:0]!=4'b1111) begin state<=5;end   //判断是否是第一行
-				    else  begin state<=2;col[3:0]<=4'b1101;end  //扫描第二行
+                    if(row[3:0]!=4'b1111) begin state<=5;end   //锟叫讹拷锟角凤拷锟角碉拷一锟斤拷
+				    else  begin state<=2;col[3:0]<=4'b1101;end  //扫锟斤拷诙锟斤拷锟�
                 end
                 2:	begin    
-                if(row[3:0]!=4'b1111) begin state<=5;end    //判断是否是第二行
-                else  begin state<=3;col[3:0]<=4'b1011;end  //扫描第三行
+                if(row[3:0]!=4'b1111) begin state<=5;end    //锟叫讹拷锟角凤拷锟角第讹拷锟斤拷
+                else  begin state<=3;col[3:0]<=4'b1011;end  //扫锟斤拷锟斤拷锟斤拷锟�
                 end
                 3:   begin    
-				if(row[3:0]!=4'b1111) begin state<=5;end   //判断是否是第三一行
-				else  begin state<=4;col[3:0]<=4'b0111;end  //扫描第四行
+				if(row[3:0]!=4'b1111) begin state<=5;end   //锟叫讹拷锟角凤拷锟角碉拷锟斤拷一锟斤拷
+				else  begin state<=4;col[3:0]<=4'b0111;end  //扫锟斤拷锟斤拷锟斤拷锟�
                 end
                 
                 4:  begin    
-                    if(row[3:0]!=4'b1111) begin state<=5;end  //判断是否是第一行
+                    if(row[3:0]!=4'b1111) begin state<=5;end  //锟叫讹拷锟角凤拷锟角碉拷一锟斤拷
                     else  state<=0;
                 end
 
                 5:  begin  
                     if(row[3:0]!=4'b1111) 
                         begin
-                            col_reg<=col;  //保存扫描列值
-                            row_reg<=row;  //保存扫描行值
+                            col_reg<=col;  //锟斤拷锟斤拷扫锟斤拷锟斤拷值
+                            row_reg<=row;  //锟斤拷锟斤拷扫锟斤拷锟斤拷值
                             state<=5;
-                            key_flag<=1'b1;  //有键按下
+                            key_flag<=1'b1;  //锟叫硷拷锟斤拷锟斤拷
                         end             
                     else
                         begin state<=0;end

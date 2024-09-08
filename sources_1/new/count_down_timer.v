@@ -19,7 +19,11 @@ module count_down_timer (
   wire time_up;
   wire [31:0] total_seconds;
   wire enable;
-  assign enable = clock_en | load;
+  assign enable = clock_en| load;
+
+  reg [3:0] st;
+  localparam WAIT=0,COUNT=1,FINISH=2;
+
   c_counter_binary_0 uut (
       .CLK(clk),
       .CE(enable),
@@ -44,16 +48,35 @@ module count_down_timer (
   reg [7:0] hour_out = 8'b00000000;
   reg [7:0] minute_out = 8'b00000000;
   reg [7:0] second_out = 8'b00000000;
+
+
   always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
       hour_out   <= 8'b00000000;
       minute_out <= 8'b00000000;
       second_out <= 8'b00000000;
-    end else begin
+      st<=WAIT;
+    end 
+    else if(total_seconds==32'h00000000) begin
+      hour_out   <= 8'b00000000;
+      minute_out <= 8'b00000000;
+      second_out <= 8'b00000000;
+    end
+    else begin
       hour_out   <= (total_seconds / 1000) / 3600;
       minute_out <= ((total_seconds / 1000) % 3600) / 60;
       second_out <= (total_seconds / 1000) % 60;
     end
+  end
+
+  always@(posedge clk)begin
+    case(st)
+      WAIT:
+        st<=clock_en?COUNT:WAIT;
+      COUNT:
+        if(total_seconds==32'h00000000)
+          st<=FINISH;
+    endcase
   end
 
   assign hour_out_bcd[7:6] = 2'b00;

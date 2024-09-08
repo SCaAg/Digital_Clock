@@ -38,8 +38,8 @@ module ledScan (
     input is_shine,
     input [7:0] which_shine
 );
-  // N = 16;
-  localparam N=3;
+  localparam N = 16;
+  //localparam N=3;
   reg [N-1:0] regN;
   reg [3:0] hexin;
   reg dp;
