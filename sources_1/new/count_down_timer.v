@@ -1,7 +1,6 @@
 // This module has been tested in sim_1/new/tb_count_down_timer.v and it works well.
 module count_down_timer (
-    input wire clk_50M,  //in 1kHz
-    input wire clk_1k,
+    input wire clk,
     input wire rst_n,
     input wire set,
     input wire play,
@@ -19,9 +18,16 @@ module count_down_timer (
   wire [31:0] total_seconds_in;
   assign total_seconds_in = ((hour_bcd_in[7:4] * 10 + hour_bcd_in[3:0]) * 3600 + (minute_bcd_in[7:4] * 10 + minute_bcd_in[3:0]) * 60 + (second_bcd_in[7:4] * 10 + second_bcd_in[3:0]))*1000;
 
+  wire clk_50M;
+  assign clk_50M = clk;
+  wire clk_1k;
 
-
-
+  clk_divider_50M_to_10k clk_divider_inst (
+      .clk_in_50M(clk_50M),
+      .rst_n(rst_n),
+      .clk_out_10k(),
+      .clk_out_1k(clk_1k)
+  );
 
   wire threshold;
   reg  enable = 1'b0;

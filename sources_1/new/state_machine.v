@@ -22,9 +22,6 @@ module state_machine (
   localparam TIMER_EDIT_MINUTE = 4'd14;
   localparam TIMER_EDIT_HOUR = 4'd15;
 
-
-
-  // pressed mode_btn
   always @(posedge clk or negedge rst_n) begin
     if (~rst_n) begin
       state <= TIME_DISP;
@@ -72,8 +69,4 @@ module state_machine (
       state <= state;
     end
   end
-
-
-
-
 endmodule
