@@ -20,14 +20,7 @@ module count_down_timer (
 
   wire clk_50M;
   assign clk_50M = clk;
-  wire clk_1k;
 
-  clk_divider_50M_to_10k clk_divider_inst (
-      .clk_in_50M(clk_50M),
-      .rst_n(rst_n),
-      .clk_out_10k(),
-      .clk_out_1k(clk_1k)
-  );
 
   wire threshold;
   reg  enable = 1'b0;
