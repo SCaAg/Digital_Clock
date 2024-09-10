@@ -21,7 +21,6 @@
 
 module clock_interface (
     input wire clk,
-    input wire rst_n,
     input wire up_btn,
     input wire down_btn,
     input wire mode_btn,
@@ -29,16 +28,23 @@ module clock_interface (
     output [7:0] seg,
     output [7:0] an
 );
+
+  reg rst_n;
+  initial begin
+    rst_n = 1'b0;
+  end
+  always @(posedge clk) begin
+    rst_n <= 1'b1;
+  end
   // 实例化 unixCounter 模块
   wire [63:0] counter;
   wire [63:0] setCounter;
   wire load_n, go;
-  wire clk_out_10k, clk_out_1k;
-  clk_divider_50M_to_10k clk_divider_50M_to_10k_inst (
+  wire clk_out_5M;
+  clk_divider clk_divider_inst (
       .clk_in_50M(clk),
       .rst_n(rst_n),
-      .clk_out_10k(clk_out_10k),
-      .clk_out_1k(clk_out_1k)
+      .clk_out_5M(clk_out_5M)
   );
 
   unixCounter #(
@@ -57,7 +63,7 @@ module clock_interface (
   wire [3:0] state;
 
   state_machine state_machine_inst (
-      .clk(clk_out_10k),
+      .clk(clk),
       .rst_n(rst_n),
       .adjust_btn(adjust_btn),
       .mode_btn(mode_btn),
@@ -72,7 +78,7 @@ module clock_interface (
   wire [7:0] dot_reg, blink_reg;
 
   led_interface led_interface_inst (
-      .clk(clk_out_10k),
+      .clk(clk),
       .rst_n(rst_n),
       .state(state),
       .counter(counter),
@@ -100,7 +106,7 @@ module clock_interface (
 
   // 实例化 ledScan 模块来驱动数码管显示
   ledScan ledScan_inst (
-      .clk(clk_out_10k),
+      .clk(clk),
       .reset_n(rst_n),
       .led0(led0),
       .led1(led1),

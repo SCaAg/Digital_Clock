@@ -16,7 +16,7 @@ module count_down_timer (
 );
 
   wire [63:0] total_seconds_in;
-  assign total_seconds_in = ((hour_bcd_in[7:4] * 10 + hour_bcd_in[3:0]) * 3600 + (minute_bcd_in[7:4] * 10 + minute_bcd_in[3:0]) * 60 + (second_bcd_in[7:4] * 10 + second_bcd_in[3:0]))*50000000;
+  assign total_seconds_in = ((hour_bcd_in[7:4] * 10 + hour_bcd_in[3:0]) * 3600 + (minute_bcd_in[7:4] * 10 + minute_bcd_in[3:0]) * 60 + (second_bcd_in[7:4] * 10 + second_bcd_in[3:0]))*5000000;
 
   wire clk_50M;
   assign clk_50M = clk;
@@ -71,9 +71,9 @@ module count_down_timer (
       minute_out <= 8'b00000000;
       second_out <= 8'b00000000;
     end else begin
-      hour_out   <= (total_seconds / 50000000) / 3600;
-      minute_out <= ((total_seconds / 50000000) % 3600) / 60;
-      second_out <= (total_seconds / 50000000) % 60;
+      hour_out   <= (total_seconds / 5000000) / 3600;
+      minute_out <= ((total_seconds / 5000000) % 3600) / 60;
+      second_out <= (total_seconds / 5000000) % 60;
     end
   end
 
