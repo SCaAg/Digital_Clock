@@ -252,7 +252,7 @@ module led_interface (
           minute_bcd_edit <= minute_bcd_edit;
           hour_bcd_edit   <= hour_bcd_edit;
           if (day_bcd_edit == 8'h31) begin
-            day_bcd_edit <= 8'h0;
+            day_bcd_edit <= 8'h1;
           end else if (day_bcd_edit[3:0] == 4'd9) begin
             day_bcd_edit[3:0] <= 4'd0;
             day_bcd_edit[7:4] <= day_bcd_edit[7:4] + 1;
@@ -267,7 +267,7 @@ module led_interface (
           minute_bcd_edit <= minute_bcd_edit;
           hour_bcd_edit   <= hour_bcd_edit;
           if (month_bcd_edit == 8'h12) begin
-            month_bcd_edit <= 8'h0;
+            month_bcd_edit <= 8'h1;
           end else if (month_bcd_edit[3:0] == 4'd9) begin
             month_bcd_edit[3:0] <= 4'd0;
             month_bcd_edit[7:4] <= month_bcd_edit[7:4] + 1;

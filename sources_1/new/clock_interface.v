@@ -63,7 +63,7 @@ module clock_interface (
   wire [3:0] state;
 
   state_machine state_machine_inst (
-      .clk(clk),
+      .clk(clk_out_5M),
       .rst_n(rst_n),
       .adjust_btn(adjust_btn),
       .mode_btn(mode_btn),
@@ -78,7 +78,7 @@ module clock_interface (
   wire [7:0] dot_reg, blink_reg;
 
   led_interface led_interface_inst (
-      .clk(clk),
+      .clk(clk_out_5M),
       .rst_n(rst_n),
       .state(state),
       .counter(counter),
