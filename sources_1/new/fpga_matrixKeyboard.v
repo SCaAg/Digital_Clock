@@ -32,7 +32,12 @@ module fpga_matrixKeyboard (
     output [7:0] an,
     output led,
     input rx_pin,
-    output tx_pin
+    output tx_pin,
+    output sck,
+    output mosi,
+    output dc_out,
+    output cs,
+    output reset_oled
 );
 
     wire [3:0] key_code;
