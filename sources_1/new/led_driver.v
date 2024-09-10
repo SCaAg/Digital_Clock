@@ -88,9 +88,9 @@ module led_driver (
       .alarm_year_bcd_in(year_bcd),
       .alarm_month_bcd_in(month_bcd),
       .alarm_day_bcd_in(day_bcd),
-      .alarm_hour_bcd_in({led_reg[5], led_reg[4]}),
-      .alarm_minute_bcd_in({led_reg[3], led_reg[2]}),
-      .alarm_second_bcd_in({led_reg[1], led_reg[0]}),
+      .alarm_hour_bcd_in(alarm_hour_bcd_editing_tmp),
+      .alarm_minute_bcd_in(alarm_minute_bcd_editing_tmp),
+      .alarm_second_bcd_in(alarm_second_bcd_editing_tmp),
       .selected_alarm(selected_alarm),
       .counter(counter),
       .alarm_hour_bcd(alarm_hour_bcd),
@@ -123,9 +123,9 @@ module led_driver (
       .set(set_timer),
       .play(play_timer),
       .stop(stop_timer),
-      .hour_bcd_in({led_reg[7], led_reg[6]}),
-      .minute_bcd_in({led_reg[4], led_reg[3]}),
-      .second_bcd_in({led_reg[1], led_reg[0]}),
+      .hour_bcd_in(timer_hour_bcd_editing_tmp),
+      .minute_bcd_in(timer_minute_bcd_editing_tmp),
+      .second_bcd_in(timer_second_bcd_editing_tmp),
       .hour_out_bcd(timer_hour_bcd),
       .minute_out_bcd(timer_minute_bcd),
       .second_out_bcd(timer_second_bcd),
@@ -222,6 +222,84 @@ module led_driver (
     end
   end
 
+  always @(posedge clk or negedge rst_n) begin
+    if (~rst_n) begin
+      second_bcd_editing_tmp       <= second_bcd;
+      minute_bcd_editing_tmp       <= minute_bcd;
+      hour_bcd_editing_tmp         <= hour_bcd;
+      day_bcd_editing_tmp          <= day_bcd;
+      month_bcd_editing_tmp        <= month_bcd;
+      year_bcd_editing_tmp         <= year_bcd;
+      alarm_second_bcd_editing_tmp <= alarm_second_bcd;
+      alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
+      alarm_hour_bcd_editing_tmp   <= alarm_hour_bcd;
+      timer_second_bcd_editing_tmp <= timer_second_bcd;
+      timer_minute_bcd_editing_tmp <= timer_minute_bcd;
+      timer_hour_bcd_editing_tmp   <= timer_hour_bcd;
+    end else begin
+      case (state)
+        TIME_DISP, DATE_DISP, ALARM_DISP, TIMER_DISP: begin
+          second_bcd_editing_tmp <= second_bcd;
+          minute_bcd_editing_tmp <= minute_bcd;
+          hour_bcd_editing_tmp <= hour_bcd;
+          day_bcd_editing_tmp <= day_bcd;
+          month_bcd_editing_tmp <= month_bcd;
+          year_bcd_editing_tmp <= year_bcd;
+          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
+          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
+          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
+          timer_second_bcd_editing_tmp <= timer_second_bcd;
+          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
+          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
+        end
+        TIME_EDIT_SECOND,TIME_EDIT_MINUTE,TIME_EDIT_HOUR,TIME_EDIT_DAY,TIME_EDIT_MONTH,TIME_EDIT_YEAR: begin
+          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
+          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
+          alarm_hour_bcd_editing_tmp   <= alarm_hour_bcd;
+          timer_second_bcd_editing_tmp <= timer_second_bcd;
+          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
+          timer_hour_bcd_editing_tmp   <= timer_hour_bcd;
+        end
+        ALARM_EDIT_SECOND, ALARM_EDIT_MINUTE, ALARM_EDIT_HOUR: begin
+          second_bcd_editing_tmp <= second_bcd;
+          minute_bcd_editing_tmp <= minute_bcd;
+          hour_bcd_editing_tmp <= hour_bcd;
+          day_bcd_editing_tmp <= day_bcd;
+          month_bcd_editing_tmp <= month_bcd;
+          year_bcd_editing_tmp <= year_bcd;
+          timer_second_bcd_editing_tmp <= timer_second_bcd;
+          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
+          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
+        end
+        TIMER_EDIT_SECOND, TIMER_EDIT_MINUTE, TIMER_EDIT_HOUR: begin
+          second_bcd_editing_tmp <= second_bcd;
+          minute_bcd_editing_tmp <= minute_bcd;
+          hour_bcd_editing_tmp <= hour_bcd;
+          day_bcd_editing_tmp <= day_bcd;
+          month_bcd_editing_tmp <= month_bcd;
+          year_bcd_editing_tmp <= year_bcd;
+          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
+          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
+          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
+        end
+        default: begin
+          second_bcd_editing_tmp <= second_bcd;
+          minute_bcd_editing_tmp <= minute_bcd;
+          hour_bcd_editing_tmp <= hour_bcd;
+          day_bcd_editing_tmp <= day_bcd;
+          month_bcd_editing_tmp <= month_bcd;
+          year_bcd_editing_tmp <= year_bcd;
+          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
+          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
+          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
+          timer_second_bcd_editing_tmp <= timer_second_bcd;
+          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
+          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
+        end
+      endcase
+    end
+  end
+
 
   always @(posedge clk or negedge rst_n) begin
     if (~rst_n) begin
@@ -246,18 +324,6 @@ module led_driver (
           led_reg[2] <= 4'd10;  // separator
           led_reg[1] <= second_bcd[7:4];
           led_reg[0] <= second_bcd[3:0];
-          second_bcd_editing_tmp <= second_bcd;
-          minute_bcd_editing_tmp <= minute_bcd;
-          hour_bcd_editing_tmp <= hour_bcd;
-          day_bcd_editing_tmp <= day_bcd;
-          month_bcd_editing_tmp <= month_bcd;
-          year_bcd_editing_tmp <= year_bcd;
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         DATE_DISP: begin
           led_reg[7] <= year_bcd[15:12];
@@ -268,18 +334,6 @@ module led_driver (
           led_reg[2] <= month_bcd[3:0];
           led_reg[1] <= day_bcd[7:4];
           led_reg[0] <= day_bcd[3:0];
-          second_bcd_editing_tmp <= second_bcd;
-          minute_bcd_editing_tmp <= minute_bcd;
-          hour_bcd_editing_tmp <= hour_bcd;
-          day_bcd_editing_tmp <= day_bcd;
-          month_bcd_editing_tmp <= month_bcd;
-          year_bcd_editing_tmp <= year_bcd;
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         TIME_EDIT_SECOND: begin
           led_reg[7] <= hour_bcd_editing_tmp[7:4];
@@ -290,12 +344,6 @@ module led_driver (
           led_reg[2] <= 4'd10;  // separator
           led_reg[1] <= bcd_incremented[7:4];
           led_reg[0] <= bcd_incremented[3:0];
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         TIME_EDIT_MINUTE: begin
           led_reg[7] <= hour_bcd_editing_tmp[7:4];
@@ -306,12 +354,6 @@ module led_driver (
           led_reg[2] <= 4'd10;  // separator
           led_reg[1] <= second_bcd_editing_tmp[7:4];
           led_reg[0] <= second_bcd_editing_tmp[3:0];
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         TIME_EDIT_HOUR: begin
           led_reg[7] <= bcd_incremented[7:4];
@@ -322,12 +364,6 @@ module led_driver (
           led_reg[2] <= 4'd10;  // separator
           led_reg[1] <= second_bcd_editing_tmp[7:4];
           led_reg[0] <= second_bcd_editing_tmp[3:0];
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         TIME_EDIT_DAY: begin
           led_reg[7] <= year_bcd_editing_tmp[15:12];
@@ -338,12 +374,6 @@ module led_driver (
           led_reg[2] <= month_bcd_editing_tmp[3:0];
           led_reg[1] <= bcd_incremented[7:4];
           led_reg[0] <= bcd_incremented[3:0];
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         TIME_EDIT_MONTH: begin
           led_reg[7] <= year_bcd_editing_tmp[15:12];
@@ -354,12 +384,6 @@ module led_driver (
           led_reg[2] <= bcd_incremented[3:0];
           led_reg[1] <= day_bcd_editing_tmp[7:4];
           led_reg[0] <= day_bcd_editing_tmp[3:0];
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         TIME_EDIT_YEAR: begin
           led_reg[7] <= bcd_incremented[15:12];
@@ -370,35 +394,17 @@ module led_driver (
           led_reg[2] <= month_bcd_editing_tmp[3:0];
           led_reg[1] <= day_bcd_editing_tmp[7:4];
           led_reg[0] <= day_bcd_editing_tmp[3:0];
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         ALARM_DISP: begin
-          led_reg[7] <= {2'b0, selected_alarm};
-          led_reg[6] <= 4'd11;  //turn off led6
-          led_reg[5] <= alarm_hour_bcd[7:4];
-          led_reg[4] <= alarm_hour_bcd[3:0];
-          led_reg[3] <= alarm_minute_bcd[7:4];
-          led_reg[2] <= alarm_minute_bcd[3:0];
-          led_reg[1] <= alarm_second_bcd[7:4];
-          led_reg[0] <= alarm_second_bcd[3:0];
+          led_reg[7]   <= {2'b0, selected_alarm};
+          led_reg[6]   <= 4'd11;  //turn off led6
+          led_reg[5]   <= alarm_hour_bcd[7:4];
+          led_reg[4]   <= alarm_hour_bcd[3:0];
+          led_reg[3]   <= alarm_minute_bcd[7:4];
+          led_reg[2]   <= alarm_minute_bcd[3:0];
+          led_reg[1]   <= alarm_second_bcd[7:4];
+          led_reg[0]   <= alarm_second_bcd[3:0];
           cancel_alarm <= 1'b1;
-          second_bcd_editing_tmp <= second_bcd;
-          minute_bcd_editing_tmp <= minute_bcd;
-          hour_bcd_editing_tmp <= hour_bcd;
-          day_bcd_editing_tmp <= day_bcd;
-          month_bcd_editing_tmp <= month_bcd;
-          year_bcd_editing_tmp <= year_bcd;
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         ALARM_EDIT_SECOND: begin
           led_reg[7] <= {2'b0, selected_alarm};
@@ -409,15 +415,6 @@ module led_driver (
           led_reg[2] <= alarm_minute_bcd_editing_tmp[3:0];
           led_reg[1] <= alarm_second_bcd_editing_tmp[7:4];
           led_reg[0] <= alarm_second_bcd_editing_tmp[3:0];
-          second_bcd_editing_tmp <= second_bcd;
-          minute_bcd_editing_tmp <= minute_bcd;
-          hour_bcd_editing_tmp <= hour_bcd;
-          day_bcd_editing_tmp <= day_bcd;
-          month_bcd_editing_tmp <= month_bcd;
-          year_bcd_editing_tmp <= year_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         ALARM_EDIT_MINUTE: begin
           led_reg[7] <= {2'b0, selected_alarm};
@@ -428,15 +425,6 @@ module led_driver (
           led_reg[2] <= bcd_incremented[3:0];
           led_reg[1] <= alarm_second_bcd_editing_tmp[7:4];
           led_reg[0] <= alarm_second_bcd_editing_tmp[3:0];
-          second_bcd_editing_tmp <= second_bcd;
-          minute_bcd_editing_tmp <= minute_bcd;
-          hour_bcd_editing_tmp <= hour_bcd;
-          day_bcd_editing_tmp <= day_bcd;
-          month_bcd_editing_tmp <= month_bcd;
-          year_bcd_editing_tmp <= year_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         ALARM_EDIT_HOUR: begin
           led_reg[7] <= {2'b0, selected_alarm};
@@ -447,15 +435,6 @@ module led_driver (
           led_reg[2] <= alarm_minute_bcd_editing_tmp[3:0];
           led_reg[1] <= alarm_second_bcd_editing_tmp[7:4];
           led_reg[0] <= alarm_second_bcd_editing_tmp[3:0];
-          second_bcd_editing_tmp <= second_bcd;
-          minute_bcd_editing_tmp <= minute_bcd;
-          hour_bcd_editing_tmp <= hour_bcd;
-          day_bcd_editing_tmp <= day_bcd;
-          month_bcd_editing_tmp <= month_bcd;
-          year_bcd_editing_tmp <= year_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         TIMER_DISP: begin
           led_reg[7] <= timer_hour_bcd[7:4];
@@ -471,18 +450,6 @@ module led_driver (
             default: play_timer <= play_timer;
           endcase
           cancel_alarm <= 1'b1;
-          second_bcd_editing_tmp <= second_bcd;
-          minute_bcd_editing_tmp <= minute_bcd;
-          hour_bcd_editing_tmp <= hour_bcd;
-          day_bcd_editing_tmp <= day_bcd;
-          month_bcd_editing_tmp <= month_bcd;
-          year_bcd_editing_tmp <= year_bcd;
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         TIMER_EDIT_SECOND: begin
           led_reg[7] <= timer_hour_bcd_editing_tmp[7:4];
@@ -493,15 +460,6 @@ module led_driver (
           led_reg[2] <= 4'd10;  // separator
           led_reg[1] <= bcd_incremented[7:4];
           led_reg[0] <= bcd_incremented[3:0];
-          second_bcd_editing_tmp <= second_bcd;
-          minute_bcd_editing_tmp <= minute_bcd;
-          hour_bcd_editing_tmp <= hour_bcd;
-          day_bcd_editing_tmp <= day_bcd;
-          month_bcd_editing_tmp <= month_bcd;
-          year_bcd_editing_tmp <= year_bcd;
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
         end
         TIMER_EDIT_MINUTE: begin
           led_reg[7] <= timer_hour_bcd_editing_tmp[7:4];
@@ -512,15 +470,6 @@ module led_driver (
           led_reg[2] <= 4'd10;  // separator
           led_reg[1] <= timer_second_bcd_editing_tmp[7:4];
           led_reg[0] <= timer_second_bcd_editing_tmp[3:0];
-          second_bcd_editing_tmp <= second_bcd;
-          minute_bcd_editing_tmp <= minute_bcd;
-          hour_bcd_editing_tmp <= hour_bcd;
-          day_bcd_editing_tmp <= day_bcd;
-          month_bcd_editing_tmp <= month_bcd;
-          year_bcd_editing_tmp <= year_bcd;
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
         end
         TIMER_EDIT_HOUR: begin
           led_reg[7] <= bcd_incremented[7:4];
@@ -529,15 +478,6 @@ module led_driver (
           led_reg[4] <= timer_minute_bcd_editing_tmp[3:0];
           led_reg[3] <= timer_second_bcd_editing_tmp[7:4];
           led_reg[2] <= timer_second_bcd_editing_tmp[3:0];
-          second_bcd_editing_tmp <= second_bcd;
-          minute_bcd_editing_tmp <= minute_bcd;
-          hour_bcd_editing_tmp <= hour_bcd;
-          day_bcd_editing_tmp <= day_bcd;
-          month_bcd_editing_tmp <= month_bcd;
-          year_bcd_editing_tmp <= year_bcd;
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
         end
         default: ;
       endcase
@@ -605,18 +545,6 @@ module led_driver (
           led_reg[2] <= 4'd10;  // separator
           led_reg[1] <= second_bcd[7:4];
           led_reg[0] <= second_bcd[3:0];
-          second_bcd_editing_tmp <= second_bcd;
-          minute_bcd_editing_tmp <= minute_bcd;
-          hour_bcd_editing_tmp <= hour_bcd;
-          day_bcd_editing_tmp <= day_bcd;
-          month_bcd_editing_tmp <= month_bcd;
-          year_bcd_editing_tmp <= year_bcd;
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         DATE_DISP: begin
           led_reg[7] <= year_bcd[15:12];
@@ -627,18 +555,6 @@ module led_driver (
           led_reg[2] <= month_bcd[3:0];
           led_reg[1] <= day_bcd[7:4];
           led_reg[0] <= day_bcd[3:0];
-          second_bcd_editing_tmp <= second_bcd;
-          minute_bcd_editing_tmp <= minute_bcd;
-          hour_bcd_editing_tmp <= hour_bcd;
-          day_bcd_editing_tmp <= day_bcd;
-          month_bcd_editing_tmp <= month_bcd;
-          year_bcd_editing_tmp <= year_bcd;
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         TIME_EDIT_SECOND: begin
           led_reg[7] <= hour_bcd_editing_tmp[7:4];
@@ -649,12 +565,6 @@ module led_driver (
           led_reg[2] <= 4'd10;  // separator
           led_reg[1] <= hour_bcd_editing_tmp[7:4];
           led_reg[0] <= hour_bcd_editing_tmp[3:0];
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         TIME_EDIT_MINUTE: begin
           led_reg[7] <= hour_bcd_editing_tmp[7:4];
@@ -665,12 +575,6 @@ module led_driver (
           led_reg[2] <= 4'd10;  // separator
           led_reg[1] <= second_bcd_editing_tmp[7:4];
           led_reg[0] <= second_bcd_editing_tmp[3:0];
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         TIME_EDIT_HOUR: begin
           led_reg[7] <= hour_bcd_editing_tmp[7:4];
@@ -681,12 +585,6 @@ module led_driver (
           led_reg[2] <= 4'd10;  // separator
           led_reg[1] <= second_bcd_editing_tmp[7:4];
           led_reg[0] <= second_bcd_editing_tmp[3:0];
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         TIME_EDIT_DAY: begin
           led_reg[7] <= year_bcd_editing_tmp[15:12];
@@ -697,12 +595,6 @@ module led_driver (
           led_reg[2] <= month_bcd_editing_tmp[3:0];
           led_reg[1] <= day_bcd_editing_tmp[7:4];
           led_reg[0] <= day_bcd_editing_tmp[3:0];
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         TIME_EDIT_MONTH: begin
           led_reg[7] <= year_bcd_editing_tmp[15:12];
@@ -713,12 +605,6 @@ module led_driver (
           led_reg[2] <= month_bcd_editing_tmp[3:0];
           led_reg[1] <= day_bcd_editing_tmp[7:4];
           led_reg[0] <= day_bcd_editing_tmp[3:0];
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         TIME_EDIT_YEAR: begin
           led_reg[7] <= year_bcd_editing_tmp[15:12];
@@ -729,12 +615,6 @@ module led_driver (
           led_reg[2] <= month_bcd_editing_tmp[3:0];
           led_reg[1] <= day_bcd_editing_tmp[7:4];
           led_reg[0] <= day_bcd_editing_tmp[3:0];
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         ALARM_DISP: begin
           led_reg[7] <= {2'b0, selected_alarm};
@@ -745,18 +625,6 @@ module led_driver (
           led_reg[2] <= alarm_minute_bcd[3:0];
           led_reg[1] <= alarm_second_bcd[7:4];
           led_reg[0] <= alarm_second_bcd[3:0];
-          second_bcd_editing_tmp <= second_bcd;
-          minute_bcd_editing_tmp <= minute_bcd;
-          hour_bcd_editing_tmp <= hour_bcd;
-          day_bcd_editing_tmp <= day_bcd;
-          month_bcd_editing_tmp <= month_bcd;
-          year_bcd_editing_tmp <= year_bcd;
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         ALARM_EDIT_SECOND: begin
           led_reg[7] <= {2'b0, selected_alarm};
@@ -767,15 +635,6 @@ module led_driver (
           led_reg[2] <= alarm_minute_bcd_editing_tmp[3:0];
           led_reg[1] <= alarm_second_bcd_editing_tmp[7:4];
           led_reg[0] <= alarm_second_bcd_editing_tmp[3:0];
-          second_bcd_editing_tmp <= second_bcd;
-          minute_bcd_editing_tmp <= minute_bcd;
-          hour_bcd_editing_tmp <= hour_bcd;
-          day_bcd_editing_tmp <= day_bcd;
-          month_bcd_editing_tmp <= month_bcd;
-          year_bcd_editing_tmp <= year_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         ALARM_EDIT_MINUTE: begin
           led_reg[7] <= {2'b0, selected_alarm};
@@ -786,15 +645,6 @@ module led_driver (
           led_reg[2] <= alarm_minute_bcd_editing_tmp[3:0];
           led_reg[1] <= alarm_second_bcd_editing_tmp[7:4];
           led_reg[0] <= alarm_second_bcd_editing_tmp[3:0];
-          second_bcd_editing_tmp <= second_bcd;
-          minute_bcd_editing_tmp <= minute_bcd;
-          hour_bcd_editing_tmp <= hour_bcd;
-          day_bcd_editing_tmp <= day_bcd;
-          month_bcd_editing_tmp <= month_bcd;
-          year_bcd_editing_tmp <= year_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         ALARM_EDIT_HOUR: begin
           led_reg[7] <= {2'b0, selected_alarm};
@@ -805,15 +655,6 @@ module led_driver (
           led_reg[2] <= alarm_minute_bcd_editing_tmp[3:0];
           led_reg[1] <= alarm_second_bcd_editing_tmp[7:4];
           led_reg[0] <= alarm_second_bcd_editing_tmp[3:0];
-          second_bcd_editing_tmp <= second_bcd;
-          minute_bcd_editing_tmp <= minute_bcd;
-          hour_bcd_editing_tmp <= hour_bcd;
-          day_bcd_editing_tmp <= day_bcd;
-          month_bcd_editing_tmp <= month_bcd;
-          year_bcd_editing_tmp <= year_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         TIMER_DISP: begin
           led_reg[7] <= timer_hour_bcd_editing_tmp[7:4];
@@ -824,18 +665,6 @@ module led_driver (
           led_reg[2] <= 4'd10;  // separator
           led_reg[1] <= timer_second_bcd_editing_tmp[7:4];
           led_reg[0] <= timer_second_bcd_editing_tmp[3:0];
-          second_bcd_editing_tmp <= second_bcd;
-          minute_bcd_editing_tmp <= minute_bcd;
-          hour_bcd_editing_tmp <= hour_bcd;
-          day_bcd_editing_tmp <= day_bcd;
-          month_bcd_editing_tmp <= month_bcd;
-          year_bcd_editing_tmp <= year_bcd;
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
-          timer_second_bcd_editing_tmp <= timer_second_bcd;
-          timer_minute_bcd_editing_tmp <= timer_minute_bcd;
-          timer_hour_bcd_editing_tmp <= timer_hour_bcd;
         end
         TIMER_EDIT_SECOND: begin
           led_reg[7] <= timer_hour_bcd_editing_tmp[7:4];
@@ -846,15 +675,6 @@ module led_driver (
           led_reg[2] <= 4'd10;  // separator
           led_reg[1] <= timer_second_bcd_editing_tmp[7:4];
           led_reg[0] <= timer_second_bcd_editing_tmp[3:0];
-          second_bcd_editing_tmp <= second_bcd;
-          minute_bcd_editing_tmp <= minute_bcd;
-          hour_bcd_editing_tmp <= hour_bcd;
-          day_bcd_editing_tmp <= day_bcd;
-          month_bcd_editing_tmp <= month_bcd;
-          year_bcd_editing_tmp <= year_bcd;
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
         end
         TIMER_EDIT_MINUTE: begin
           led_reg[7] <= timer_hour_bcd_editing_tmp[7:4];
@@ -865,15 +685,6 @@ module led_driver (
           led_reg[2] <= 4'd10;  // separator
           led_reg[1] <= timer_second_bcd_editing_tmp[7:4];
           led_reg[0] <= timer_second_bcd_editing_tmp[3:0];
-          second_bcd_editing_tmp <= second_bcd;
-          minute_bcd_editing_tmp <= minute_bcd;
-          hour_bcd_editing_tmp <= hour_bcd;
-          day_bcd_editing_tmp <= day_bcd;
-          month_bcd_editing_tmp <= month_bcd;
-          year_bcd_editing_tmp <= year_bcd;
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
         end
         TIMER_EDIT_HOUR: begin
           led_reg[7] <= timer_hour_bcd_editing_tmp[7:4];
@@ -884,15 +695,6 @@ module led_driver (
           led_reg[2] <= 4'd10;  // separator
           led_reg[1] <= timer_second_bcd_editing_tmp[7:4];
           led_reg[0] <= timer_second_bcd_editing_tmp[3:0];
-          second_bcd_editing_tmp <= second_bcd;
-          minute_bcd_editing_tmp <= minute_bcd;
-          hour_bcd_editing_tmp <= hour_bcd;
-          day_bcd_editing_tmp <= day_bcd;
-          month_bcd_editing_tmp <= month_bcd;
-          year_bcd_editing_tmp <= year_bcd;
-          alarm_second_bcd_editing_tmp <= alarm_second_bcd;
-          alarm_minute_bcd_editing_tmp <= alarm_minute_bcd;
-          alarm_hour_bcd_editing_tmp <= alarm_hour_bcd;
         end
         default: begin
           led_reg[7] <= led_reg[7];

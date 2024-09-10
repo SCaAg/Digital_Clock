@@ -107,7 +107,7 @@ module tb_led_driver ();
     state = TIME_EDIT_HOUR;
     press_down_btn();
     #20 $display("edit second:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0);
-    state = TIME_EDIT
+    state = TIME_EDIT;
     $finish;
   end
 
