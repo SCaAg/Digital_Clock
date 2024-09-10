@@ -40,7 +40,7 @@ module keyState(
     wire clk_1kHz; //1kHz锟斤拷频
     reg [31:0] counter;
     always @(posedge clk) begin
-        if(!reset_n)begin
+        if(~reset_n)begin
             fenpingCounter<=0;
         end
         else if(fenpingCounter<fenpingM)begin
@@ -52,12 +52,14 @@ module keyState(
     end
     assign clk_1kHz=(fenpingCounter==fenpingM)?1'b1:1'b0;
 
-    reg [3:0]st;
-    localparam STABLE=0,DOUDONG=1;
     reg [3:0] before_key;
 
-    always @(posedge clk_1kHz)begin
-        if(key_vaild)begin
+    always @(posedge clk_1kHz or negedge reset_n)begin
+        if(~reset_n)begin
+            counter<=0;
+            before_key<=0;
+        end
+        else if(key_vaild)begin
             if(before_key!=key_code)begin
                 counter<=0;
                 before_key<=key_code;

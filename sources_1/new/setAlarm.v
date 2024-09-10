@@ -88,7 +88,7 @@ module setAlarm(
             button_state<=BUTTON_RELEASE;
             position_state<=SECOND_LOW;
         end
-        if(totalstate==3)begin
+        if(totalstate==2)begin
         case(which_alarm)
             ALARM1_BEGIN:begin
                 hour_bcd_in<=hour1;
@@ -192,8 +192,14 @@ module setAlarm(
                             if(left_button == 1)begin position_state<=HOUR_HIGH;button_state<=BUTTON_PRESS;end
                             if(right_button == 1)begin position_state<=MINUTE_HIGH;button_state<=BUTTON_PRESS;end
                             if(up_button==1)begin
-                                if(hour_bcd_in[3:0] == 4'h9)hour_bcd_in[3:0] <= 4'h0;
-                                else hour_bcd_in[3:0] <= hour_bcd_in[3:0] + 1'b1;
+                                if(hour_bcd_in[7:4]==0|hour_bcd_in[7:4]==1)begin
+                                    if(hour_bcd_in[3:0] == 4'h9)hour_bcd_in[3:0] <= 4'h0;
+                                    else hour_bcd_in[3:0] <= hour_bcd_in[3:0] + 1'b1;
+                                end
+                                else if(hour_bcd_in[7:4]==2)begin
+                                    if(hour_bcd_in[3:0] == 4'h3)hour_bcd_in[3:0] <= 4'h0;
+                                    else hour_bcd_in[3:0] <= hour_bcd_in[3:0] + 1'b1;
+                                end
                                 button_state<=BUTTON_PRESS;
                             end
                             if(down_button==1)begin

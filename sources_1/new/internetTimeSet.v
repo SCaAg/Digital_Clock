@@ -18,7 +18,9 @@
 // Additional Comments:
 // 
 //////////////////////////////////////////////////////////////////////////////////
-
+//en 使能
+//finished 1表示完成
+//timeout 输出时间
 
 module internetTimeSet(
     input clk,
@@ -218,7 +220,7 @@ module internetTimeSet(
                     end
                 end
                 FINISHED: begin
-                    timeout<=timeout-2208988800;
+                    timeout<=timeout-2208988800+8*60*60;
                     st<=WAIT;
                     finished<=1;
                 end

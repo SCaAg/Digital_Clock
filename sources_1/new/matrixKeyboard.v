@@ -19,7 +19,7 @@
 // 
 //////////////////////////////////////////////////////////////////////////////////
 
-//锟斤拷锟斤拷锟斤拷锟缴拷锟�
+//锟斤拷锟斤拷锟斤拷锟缴拷锟?1?7
 //锟斤拷锟诫：clk 时锟斤拷锟脚猴拷 reset_n 锟斤拷位锟脚猴拷 row[3:0] 锟斤拷锟脚猴拷
 //锟斤拷锟斤拷锟絚ol 锟斤拷锟脚猴拷 key_vaild 锟斤拷锟斤拷锟斤拷效锟脚猴拷 key_code[3:0] 锟斤拷锟斤拷锟斤拷锟斤拷
 module matrixKeyboard(
@@ -31,7 +31,7 @@ module matrixKeyboard(
 	output reg [3:0] key_code  //锟斤拷值
     );
     reg key_flag; //锟斤拷锟斤拷锟斤拷志位
-    reg [2:0]state=0;  //状态锟斤拷状态
+    reg [2:0]state;  //状态锟斤拷状态
     reg clk_500khz;  //500KHZ时锟斤拷锟脚猴拷
     reg [5:0] counter;  //锟斤拷锟斤拷锟斤拷
     reg [3:0] col_reg;  //锟侥达拷扫锟斤拷锟斤拷值
@@ -53,7 +53,7 @@ module matrixKeyboard(
         end
     end
 
-    always @(posedge clk_500khz) begin
+    always @(posedge clk_500khz or negedge reset_n) begin
         if(!reset_n) begin
             col <= 4'b0000;
             state<=0;
@@ -63,20 +63,20 @@ module matrixKeyboard(
                 0: begin
                     col <= 4'b0000;
                     key_flag<=1'b0;
-                    if(row[3:0]!=4'b1111) begin state<=1;col[3:0]<=4'b1110;end //锟叫硷拷锟斤拷锟铰ｏ拷扫锟斤拷锟揭伙拷锟�
-                    else state<=0;
+                    if(row[3:0]!=4'b1111) begin state<=1;col[3:0]<=4'b1110;end //锟叫硷拷锟斤拷锟铰ｏ拷扫锟斤拷锟揭伙拷锟?1?7
+                    else begin state<=0;end
                 end
                 1: begin
                     if(row[3:0]!=4'b1111) begin state<=5;end   //锟叫讹拷锟角凤拷锟角碉拷一锟斤拷
-				    else  begin state<=2;col[3:0]<=4'b1101;end  //扫锟斤拷诙锟斤拷锟�
+				    else  begin state<=2;col[3:0]<=4'b1101;end  //扫锟斤拷诙锟斤拷锟?1?7
                 end
                 2:	begin    
                 if(row[3:0]!=4'b1111) begin state<=5;end    //锟叫讹拷锟角凤拷锟角第讹拷锟斤拷
-                else  begin state<=3;col[3:0]<=4'b1011;end  //扫锟斤拷锟斤拷锟斤拷锟�
+                else  begin state<=3;col[3:0]<=4'b1011;end  //扫锟斤拷锟斤拷锟斤拷锟?1?7
                 end
                 3:   begin    
 				if(row[3:0]!=4'b1111) begin state<=5;end   //锟叫讹拷锟角凤拷锟角碉拷锟斤拷一锟斤拷
-				else  begin state<=4;col[3:0]<=4'b0111;end  //扫锟斤拷锟斤拷锟斤拷锟�
+				else  begin state<=4;col[3:0]<=4'b0111;end  //扫锟斤拷锟斤拷锟斤拷锟?1?7
                 end
                 
                 4:  begin    
