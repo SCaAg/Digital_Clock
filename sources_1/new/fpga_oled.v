@@ -30,58 +30,54 @@ module fpga_oled(
     output reset_oled
     );
     
-    //spi初始化
-    wire dc;
-    wire [7:0] spi_data;
-    wire spi_send;
-    wire spi_send_done;
-    wire spi_clk;
-    spiMaster spoMaster1(
+    //计时器初始化
+    reg load_n=1;
+    reg go=1;
+    wire [63:0] unixCounter;
+    unixCounter unixCounter1(
         .clk(clk),
         .reset_n(reset_n),
-        .dc_in(dc),
-        .spi_data_out(spi_data),
-        .spi_send(spi_send),
-        .spi_send_done(spi_send_done),
-        .spi_clk(spi_clk),
-        .dc(dc_out),
+        .load_n(load_n),
+        .go(go),
+        .counter(unixCounter)
+    );
+
+    wire [4:0] hour;
+    wire [5:0] minute;
+    wire [5:0] second;
+    wire [13:0] year;
+    wire [3:0] month;
+    wire [4:0] day;
+    
+    unix64_to_UTC unix64_to_UTC1(
+        .clk(clk),
+        .rst_n(reset_n),
+        .unix_time(unixCounter),
+        .hour(hour),
+        .minute(minute),
+        .second(second),
+        .year(year),
+        .month(month),
+        .day(day)
+    );
+
+    oledInterface oledInterface1(
+        .clk(clk),
+        .reset_n(reset_n),
+        .hour(hour),
+        .minute(minute),
+        .second(second),
         .sck(sck),
         .mosi(mosi),
-        .cs(cs)
+        .dc_out(dc_out),
+        .cs(cs),
+        .reset_oled(reset_oled),
+        .year(year),
+        .month(month),
+        .day(day)
     );
 
-    //oled初始化
-    wire oled_init_spi_send;
-    wire [7:0] oled_init_spi_data;
-    wire init_done;
-    wire oled_init_dc;
-    oled_init oled_init1(
-        .send_done(spi_send_done),
-        .spi_send(oled_init_spi_send),
-        .spi_data(oled_init_spi_data),
-        .clk(spi_clk),
-        .dc(oled_init_dc),
-        .reset_n(reset_n),
-        .init_done(init_done)
-    );
 
-    wire oled_draw_spi_send;
-    wire [7:0] oled_draw_spi_data;
-    wire oled_draw_dc;
-    oledDrawv3 oledDraw1(
-        .clk(spi_clk),
-        .reset_n(reset_n),
-        .send_done(spi_send_done),
-        .is_draw(init_done),
-        .spi_send(oled_draw_spi_send),
-        .spi_data(oled_draw_spi_data),
-        .dc(oled_draw_dc)
-    );
-
-    assign spi_send = (!init_done)? oled_init_spi_send : oled_draw_spi_send;
-    assign spi_data = (!init_done)? oled_init_spi_data : oled_draw_spi_data;
-    assign dc=(!init_done)? oled_init_dc : oled_draw_dc;
-    assign reset_oled = reset_n;
 
 
 

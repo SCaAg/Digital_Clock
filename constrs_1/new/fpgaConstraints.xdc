@@ -67,3 +67,5 @@ set_property -dict {PACKAGE_PIN P19 IOSTANDARD LVCMOS33} [get_ports {key2}]
 set_property -dict {PACKAGE_PIN R19 IOSTANDARD LVCMOS33} [get_ports {key1}]
 
 set_property -dict {PACKAGE_PIN AA6 IOSTANDARD LVCMOS33} [get_ports {led}]
+set_property -dict { PACKAGE_PIN J16   IOSTANDARD LVCMOS33 } [get_ports tx_pin ]
+set_property -dict { PACKAGE_PIN H13   IOSTANDARD LVCMOS33 } [get_ports rx_pin ]

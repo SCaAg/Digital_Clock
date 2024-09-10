@@ -18,7 +18,7 @@ module unixCounter #(
   wire clk1Hz;
   localparam fenpingM = 50000000;
   //localparam fenpingM=5;
-  //localparam fenpingM=5000000;
+  //localparam fenpingM=50000;//测试用
   initial begin
     fenpingCounter = 64'b0;
     counter = 64'b0;

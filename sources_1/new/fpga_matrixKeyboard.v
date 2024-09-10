@@ -107,6 +107,7 @@ module fpga_matrixKeyboard (
       .which_shine(which_shine_show)
   );
     
+    
     reg [3:0] totalstate_enter;
 
     wire [7:0] point_count_down;
@@ -121,6 +122,7 @@ module fpga_matrixKeyboard (
     wire is_shine_count_down;
     wire [7:0] which_shine_count_down;
     wire [3:0] count_down_state;
+    /*
     countDownInterface countDownInterface1(
         .clk(clk),
         .reset_n(reset_n),
@@ -145,7 +147,32 @@ module fpga_matrixKeyboard (
         .led(led),
         .count_down_state(count_down_state)
     );
-    
+    */
+    setAlarm setAlarm1(
+        .clk(clk),
+        .reset_n(reset_n),
+        .totalstate(totalstate_enter),
+        .enter_button(enter_button),
+        .return_button(return_button),
+        .left_button(left_button),
+        .right_button(right_button),
+        .up_button(up_button),
+        .down_button(down_button),
+        .led8Number(led8Number_count_down),
+        .led7Number(led7Number_count_down),
+        .led6Number(led6Number_count_down),
+        .led5Number(led5Number_count_down),
+        .led4Number(led4Number_count_down),
+        .led3Number(led3Number_count_down),
+        .led2Number(led2Number_count_down),
+        .led1Number(led1Number_count_down),
+        .is_shine(is_shine_count_down),
+        .which_shine(which_shine_count_down),
+        .point(point_count_down)   
+    );
+
+
+
     wire [3:0] enter_button;
     assign enter_button = key5_state;
     wire [3:0] return_button;
