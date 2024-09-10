@@ -11,8 +11,7 @@ module unix64_to_UTC (
     output reg  [ 2:0] weekday,    // 输出范围 0~6 (代表星期天~星期六)
     output reg  [ 4:0] hour,       // 输出范围 0~23
     output reg  [ 5:0] minute,     // 输出范围 0~59
-    output reg  [ 5:0] second,     // 输出范围 0~59
-    output wire [ 3:0] state
+    output reg  [ 5:0] second      // 输出范围 0~59
 );
 
   // 常量定义
@@ -54,7 +53,6 @@ module unix64_to_UTC (
   reg [ 1:0] term_1 = 2'd0;
 
   reg [ 3:0] convertor_state = 4'd0;
-  assign state = convertor_state;
 
 
   always @(posedge clk or negedge rst_n) begin

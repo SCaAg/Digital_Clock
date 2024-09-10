@@ -22,10 +22,25 @@ module state_machine (
   localparam TIMER_EDIT_MINUTE = 4'd14;
   localparam TIMER_EDIT_HOUR = 4'd15;
 
+  reg [1:0] mode_btn_buf = 2'b0;
+  reg [1:0] adjust_btn_buf = 2'b0;
+  always @(posedge clk or negedge rst_n) begin
+    if (~rst_n) begin
+      mode_btn_buf   <= 2'b0;
+      adjust_btn_buf <= 2'b0;
+    end else begin
+      mode_btn_buf   <= {mode_btn_buf[0], mode_btn};
+      adjust_btn_buf <= {adjust_btn_buf[0], adjust_btn};
+    end
+  end
+
+  wire mode_btn_negedge = mode_btn_buf == 2'b10;
+  wire adjust_btn_negedge = adjust_btn_buf == 2'b10;
+
   always @(posedge clk or negedge rst_n) begin
     if (~rst_n) begin
       state <= TIME_DISP;
-    end else if (~mode_btn) begin
+    end else if (mode_btn_negedge) begin
       case (state)
         TIME_DISP: state <= DATE_DISP;
         DATE_DISP: state <= ALARM_DISP;
@@ -45,7 +60,7 @@ module state_machine (
         TIMER_EDIT_HOUR: state <= TIMER_EDIT_MINUTE;
         default: state <= state;
       endcase
-    end else if (~adjust_btn) begin
+    end else if (adjust_btn_negedge) begin
       case (state)
         TIME_DISP: state <= TIME_EDIT_HOUR;
         DATE_DISP: state <= TIME_EDIT_YEAR;

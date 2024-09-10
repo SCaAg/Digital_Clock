@@ -35,7 +35,7 @@ module tb_led_driver ();
   wire [63:0] counter_out;
 
   // 实例化被测试模块
-  led_driver uut (
+  led_interface uut (
       .clk(clk),
       .rst_n(rst_n),
       .state(state),

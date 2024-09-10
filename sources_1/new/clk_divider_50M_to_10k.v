@@ -13,7 +13,7 @@ module clk_divider_50M_to_10k (
       counter_1k <= 16'd0;
       clk_out_1k <= 1'b0;
     end else begin
-      if (counter_1k == 16'd24999) begin
+      if (counter_1k == 16'd4) begin
         counter_1k <= 16'd0;
         clk_out_1k <= ~clk_out_1k;  // 切换输出时钟
       end else begin
@@ -29,7 +29,7 @@ module clk_divider_50M_to_10k (
       counter <= 13'd0;
       clk_out_10k <= 1'b0;
     end else begin
-      if (counter == 13'd2499) begin
+      if (counter == 13'd4) begin
         counter <= 13'd0;
         clk_out_10k <= ~clk_out_10k;  // Toggle output clock
       end else begin
