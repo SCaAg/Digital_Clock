@@ -45,10 +45,10 @@ module edit (
 
   always @(posedge clk or negedge rst_n) begin
     if (!rst_n) begin
-      year_bcd_out <= 16'd0;
-      month_bcd_out <= 8'd0;
-      day_bcd_out <= 8'd0;
-      hour_bcd_out <= 8'd0;
+      year_bcd_out   <= 16'd0;
+      month_bcd_out  <= 8'd0;
+      day_bcd_out    <= 8'd0;
+      hour_bcd_out   <= 8'd0;
       minute_bcd_out <= 8'd0;
       second_bcd_out <= 8'd0;
     end else begin
@@ -99,14 +99,29 @@ module edit (
               month_bcd_out <= month_bcd_in + 4'h1;
             end
           end
-          TIME_EDIT_YEAR begin
+          TIME_EDIT_YEAR: begin
             if (year_bcd_in == 16'h9999) begin
               year_bcd_out <= 16'h0000;
             end else begin
               year_bcd_out <= bcd_incremented;
             end
           end
+          default: begin
+            year_bcd_out <= year_bcd_in;
+            month_bcd_out <= month_bcd_in;
+            day_bcd_out <= day_bcd_in;
+            hour_bcd_out <= hour_bcd_in;
+            minute_bcd_out <= minute_bcd_in;
+            second_bcd_out <= second_bcd_in;
+          end
         endcase
+      end else begin
+        year_bcd_out <= year_bcd_in;
+        month_bcd_out <= month_bcd_in;
+        day_bcd_out <= day_bcd_in;
+        hour_bcd_out <= hour_bcd_in;
+        minute_bcd_out <= minute_bcd_in;
+        second_bcd_out <= second_bcd_in;
       end
     end
   end

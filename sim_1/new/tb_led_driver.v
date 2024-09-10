@@ -92,22 +92,31 @@ module tb_led_driver ();
     // 复位
     #100 rst_n = 1;
 
-    #1000 $display("current time:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0);
-    state = DATE_DISP;
-    #20 $display("current date:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0);
+    #8000 $display("current time:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0);
+    #8000 state = DATE_DISP;
+    #200 $display("current date:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0);
     state = TIME_EDIT_SECOND;
-    #20
+    #200
     $display(
         "begin to edit second:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0
     );
     press_down_btn();
-    #20 $display("edit second:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0);
+    #10000
+    $display(
+        "increase second:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0
+    );
     press_down_btn();
-    #20 $display("edit second:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0);
+    #10000
+    $display(
+        "increase second:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0
+    );
     state = TIME_EDIT_HOUR;
     press_down_btn();
-    #20 $display("edit second:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0);
-    state = TIME_EDIT;
+    #10000
+    $display(
+        "increase hour:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0
+    );
+    state = TIME_EDIT_MINUTE;
     $finish;
   end
 
