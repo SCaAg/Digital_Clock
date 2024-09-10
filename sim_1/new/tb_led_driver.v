@@ -74,7 +74,7 @@ module tb_led_driver ();
   task press_down_btn;
     begin
       down_btn = 0;
-      #200;
+      #100;
       down_btn = 1;
     end
   endtask
@@ -92,8 +92,8 @@ module tb_led_driver ();
     // 复位
     #100 rst_n = 1;
 
-    #8000 $display("current time:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0);
-    #8000 state = DATE_DISP;
+    #5000 $display("current time:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0);
+    #5000 state = DATE_DISP;
     #200 $display("current date:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0);
     state = TIME_EDIT_SECOND;
     #200
@@ -101,22 +101,119 @@ module tb_led_driver ();
         "begin to edit second:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0
     );
     press_down_btn();
-    #10000
+    #5000
     $display(
         "increase second:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0
     );
     press_down_btn();
-    #10000
+    #5000
     $display(
         "increase second:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0
     );
     state = TIME_EDIT_HOUR;
     press_down_btn();
-    #10000
+    #5000
     $display(
         "increase hour:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0
     );
     state = TIME_EDIT_MINUTE;
+    press_down_btn();
+    #5000
+    $display(
+        "increase minute:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0
+    );
+    state = TIME_EDIT_DAY;
+    press_down_btn();
+    #5000 $display("increase day:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0);
+    state = TIME_EDIT_MONTH;
+    press_down_btn();
+    #5000
+    $display(
+        "increase month:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0
+    );
+    state = TIME_EDIT_YEAR;
+    press_down_btn();
+    #5000
+    $display(
+        "increase year:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0
+    );
+    press_down_btn();
+    #5000
+    $display(
+        "increase year:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0
+    );
+    state = TIME_EDIT_SECOND;
+    press_down_btn();
+    #5000
+    $display(
+        "increase second:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0
+    );
+    state = TIME_DISP;
+    #5000 $display("current time:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0);
+    $display("set counter:%d", counter_out);
+    state = ALARM_DISP;
+    #10000 $display("alarm1:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0);
+    press_up_btn();
+    #10000 $display("alarm2:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0);
+    press_up_btn();
+    #20000 $display("alarm3:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0);
+    press_up_btn();
+    #10000 $display("alarm1:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0);
+    state = ALARM_EDIT_SECOND;
+    press_down_btn();
+    #5000
+    $display(
+        "increase alarm1 second:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0
+    );
+    state = ALARM_EDIT_MINUTE;
+    press_down_btn();
+    #5000
+    $display(
+        "increase alarm1 minute:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0
+    );
+    state = ALARM_EDIT_HOUR;
+    press_down_btn();
+    #5000
+    $display(
+        "increase alarm1 hour:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0
+    );
+    state = ALARM_DISP;
+    #5000 $display("alarm1:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0);
+
+    state = TIMER_DISP;
+    #5000
+    $display(
+        "display timer:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0
+    );
+    state = TIMER_EDIT_SECOND;
+    press_down_btn();
+    #5000
+    $display(
+        "increase second for timer:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0
+    );
+    state = TIMER_EDIT_MINUTE;
+    press_down_btn();
+    #5000
+    $display(
+        "increase minute for timer:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0
+    );
+    state = TIMER_EDIT_HOUR;
+    press_down_btn();
+    #5000
+    $display(
+        "increase hour for timer:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0
+    );
+    state = TIMER_DISP;
+    #5000
+    $display(
+        "display timer:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0
+    );
+
+    press_up_btn();
+    #5000
+    $display(
+        "display timer:%h%h%h%h%h%h%h%h", led7, led6, led5, led4, led3, led2, led1, led0
+    );
     $finish;
   end
 

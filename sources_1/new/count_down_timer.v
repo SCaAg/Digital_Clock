@@ -15,8 +15,8 @@ module count_down_timer (
     output reg counting = 1'b0
 );
 
-  wire [31:0] total_seconds_in;
-  assign total_seconds_in = ((hour_bcd_in[7:4] * 10 + hour_bcd_in[3:0]) * 3600 + (minute_bcd_in[7:4] * 10 + minute_bcd_in[3:0]) * 60 + (second_bcd_in[7:4] * 10 + second_bcd_in[3:0]))*1000;
+  wire [63:0] total_seconds_in;
+  assign total_seconds_in = ((hour_bcd_in[7:4] * 10 + hour_bcd_in[3:0]) * 3600 + (minute_bcd_in[7:4] * 10 + minute_bcd_in[3:0]) * 60 + (second_bcd_in[7:4] * 10 + second_bcd_in[3:0]))*50000000;
 
   wire clk_50M;
   assign clk_50M = clk;
@@ -47,9 +47,9 @@ module count_down_timer (
     end
   end
 
-  wire [31:0] total_seconds;
+  wire [63:0] total_seconds;
   c_counter_binary_0 uut (
-      .CLK(clk_1k),
+      .CLK(clk_50M),
       .CE(enable || set),
       .LOAD(set),
       .L(total_seconds_in),
@@ -72,15 +72,15 @@ module count_down_timer (
   reg [7:0] hour_out = 8'b00000000;
   reg [7:0] minute_out = 8'b00000000;
   reg [7:0] second_out = 8'b00000000;
-  always @(posedge clk_1k or negedge rst_n) begin
+  always @(posedge clk_50M or negedge rst_n) begin
     if (!rst_n) begin
       hour_out   <= 8'b00000000;
       minute_out <= 8'b00000000;
       second_out <= 8'b00000000;
     end else begin
-      hour_out   <= (total_seconds / 1000) / 3600;
-      minute_out <= ((total_seconds / 1000) % 3600) / 60;
-      second_out <= (total_seconds / 1000) % 60;
+      hour_out   <= (total_seconds / 50000000) / 3600;
+      minute_out <= ((total_seconds / 50000000) % 3600) / 60;
+      second_out <= (total_seconds / 50000000) % 60;
     end
   end
 

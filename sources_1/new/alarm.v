@@ -27,8 +27,8 @@ module alarm (
 );
   //---alarm storage---//
   reg  [63:0] alarm0_stamp = 64'd0;
-  reg  [63:0] alarm1_stamp = 64'd0;
-  reg  [63:0] alarm2_stamp = 64'd0;
+  reg  [63:0] alarm1_stamp = 64'd946684799;
+  reg  [63:0] alarm2_stamp = 64'd2147483647;
 
   //--convert alarm time to alarm stamp--//
   reg  [63:0] alarm_stamp_tmp;
@@ -94,8 +94,8 @@ module alarm (
   always @(posedge clk or negedge rst_n) begin
     if (~rst_n) begin
       alarm0_stamp <= 64'd0;
-      alarm1_stamp <= 64'd0;
-      alarm2_stamp <= 64'd0;
+      alarm1_stamp <= 64'd946684799;
+      alarm2_stamp <= 64'd2147483647;
     end else if (set) begin
       case (selected_alarm)
         2'b00:   alarm0_stamp <= alarm2save;

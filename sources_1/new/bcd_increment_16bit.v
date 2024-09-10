@@ -47,6 +47,6 @@ module bcd_increment_16bit (
   );
 
   // Ensure correct BCD increment and reset if max value is reached
-  assign bcd_out = (bcd_tmp >= bcd_max) ? 16'd0 : bcd_tmp;
+  assign bcd_out = (bcd_tmp > bcd_max) ? 16'd0 : bcd_tmp;
 endmodule
 
