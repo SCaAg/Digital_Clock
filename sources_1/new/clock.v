@@ -67,6 +67,18 @@ module clock (
   wire [13:0] year;
   wire [ 3:0] month;
   wire [ 4:0] day;
+  wire [15:0] year_bcd;
+  wire [ 7:0] month_bcd;
+  wire [ 7:0] day_bcd;
+  wire [ 7:0] hour_bcd;
+  wire [ 7:0] minute_bcd;
+  wire [ 7:0] second_bcd;
+  assign year = year_bcd[15:12] * 1000 + year_bcd[11:8] * 100 + year_bcd[7:4] * 10 + year_bcd[3:0];
+  assign month = month_bcd[7:4] * 10 + month_bcd[3:0];
+  assign day = day_bcd[7:4] * 10 + day_bcd[3:0];
+  assign hour = hour_bcd[7:4] * 10 + hour_bcd[3:0];
+  assign minute = minute_bcd[7:4] * 10 + minute_bcd[3:0];
+  assign second = second_bcd[7:4] * 10 + second_bcd[3:0];
   oledInterface oledInterface1 (
       .clk(clk),
       .reset_n(reset_n),
@@ -148,7 +160,13 @@ module clock (
       .mode_btn(mode_btn),
       .adjust_btn(adjust_btn),
       .seg(seg),
-      .an(an)
+      .an(an),
+      .year_bcd(year_bcd),
+      .month_bcd(month_bcd),
+      .day_bcd(day_bcd),
+      .hour_bcd(hour_bcd),
+      .minute_bcd(minute_bcd),
+      .second_bcd(second_bcd)
   );
 
 

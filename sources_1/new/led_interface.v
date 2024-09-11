@@ -19,8 +19,14 @@ module led_interface (
     output reg [3:0] led6,
     output reg [3:0] led7,
     output wire [63:0] counter_out,
-    reg [7:0] dot_reg,
-    reg [7:0] blink_reg
+    output reg [7:0] dot_reg,
+    output reg [7:0] blink_reg,
+    output wire [15:0] year_bcd,
+    output wire [7:0] month_bcd,
+    output wire [7:0] day_bcd,
+    output wire [7:0] hour_bcd,
+    output wire [7:0] minute_bcd,
+    output wire [7:0] second_bcd
 );
   localparam TIME_DISP = 4'd0;
   localparam DATE_DISP = 4'd1;
@@ -58,26 +64,21 @@ module led_interface (
   assign up_btn_negedge   = up_btn_buf == 2'b10;
 
   // Time display
-  wire [15:0] year_bcd;
-  wire [ 7:0] month_bcd;
-  wire [ 7:0] day_bcd;
-  wire [ 7:0] hour_bcd;
-  wire [ 7:0] minute_bcd;
-  wire [ 7:0] second_bcd;
-  // Time editing temporary registers
-  reg  [15:0] year_bcd_edit;
-  reg  [ 7:0] month_bcd_edit;
-  reg  [ 7:0] day_bcd_edit;
-  reg  [ 7:0] hour_bcd_edit;
-  reg  [ 7:0] minute_bcd_edit;
-  reg  [ 7:0] second_bcd_edit;
 
-  reg  [79:0] year_bcd_edit_buf;
-  reg  [39:0] month_bcd_edit_buf;
-  reg  [39:0] day_bcd_edit_buf;
-  reg  [39:0] hour_bcd_edit_buf;
-  reg  [39:0] minute_bcd_edit_buf;
-  reg  [39:0] second_bcd_edit_buf;
+  // Time editing temporary registers
+  reg [15:0] year_bcd_edit;
+  reg [ 7:0] month_bcd_edit;
+  reg [ 7:0] day_bcd_edit;
+  reg [ 7:0] hour_bcd_edit;
+  reg [ 7:0] minute_bcd_edit;
+  reg [ 7:0] second_bcd_edit;
+
+  reg [79:0] year_bcd_edit_buf;
+  reg [39:0] month_bcd_edit_buf;
+  reg [39:0] day_bcd_edit_buf;
+  reg [39:0] hour_bcd_edit_buf;
+  reg [39:0] minute_bcd_edit_buf;
+  reg [39:0] second_bcd_edit_buf;
   always @(posedge clk or negedge rst_n) begin
     if (~rst_n) begin
       year_bcd_edit_buf <= 80'b0;

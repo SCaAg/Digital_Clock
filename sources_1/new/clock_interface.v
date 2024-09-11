@@ -26,7 +26,13 @@ module clock_interface (
     input wire mode_btn,
     input wire adjust_btn,
     output [7:0] seg,
-    output [7:0] an
+    output [7:0] an,
+    output wire [15:0] year_bcd,
+    output wire [7:0] month_bcd,
+    output wire [7:0] day_bcd,
+    output wire [7:0] hour_bcd,
+    output wire [7:0] minute_bcd,
+    output wire [7:0] second_bcd
 );
 
   reg rst_n;
@@ -96,7 +102,13 @@ module clock_interface (
       .led7(led7),
       .counter_out(counter_out),
       .dot_reg(dot_reg),
-      .blink_reg(blink_reg)
+      .blink_reg(blink_reg),
+      .year_bcd(year_bcd),
+      .month_bcd(month_bcd),
+      .day_bcd(day_bcd),
+      .hour_bcd(hour_bcd),
+      .minute_bcd(minute_bcd),
+      .second_bcd(second_bcd)
   );
 
   // 连接 unixCounter 和 led_interface
