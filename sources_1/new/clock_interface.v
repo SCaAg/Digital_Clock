@@ -32,7 +32,9 @@ module clock_interface (
     output wire [7:0] day_bcd,
     output wire [7:0] hour_bcd,
     output wire [7:0] minute_bcd,
-    output wire [7:0] second_bcd
+    output wire [7:0] second_bcd,
+    input wire issetintertime,
+    input wire [63:0] intertime
 );
 
   reg rst_n;
@@ -44,7 +46,10 @@ module clock_interface (
   end
   // 实例化 unixCounter 模块
   wire [63:0] counter;
-  wire [63:0] setCounter;
+  wire setCounter;
+  wire [63:0] setCounter_total;
+  assign setCounter_total = issetintertime ? intertime : setCounter;
+
   wire load_n, go;
   wire clk_out_5M;
   clk_divider clk_divider_inst (
@@ -59,9 +64,9 @@ module clock_interface (
   ) unixCounter_inst (
       .clk(clk),
       .reset_n(rst_n),
-      .load_n(load_n),
+      .load_n(load_n && ~issetintertime),
       .go(go),
-      .setCounter(setCounter),
+      .setCounter(setCounter_total),
       .counter(counter)
   );
 

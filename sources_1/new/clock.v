@@ -79,6 +79,7 @@ module clock (
   assign hour = hour_bcd[7:4] * 10 + hour_bcd[3:0];
   assign minute = minute_bcd[7:4] * 10 + minute_bcd[3:0];
   assign second = second_bcd[7:4] * 10 + second_bcd[3:0];
+  /*
   oledInterface oledInterface1 (
       .clk(clk),
       .reset_n(reset_n),
@@ -93,7 +94,7 @@ module clock (
       .year(year),
       .month(month),
       .day(day)
-  );
+  );*/
 
   wire [3:0] key_code;
   wire key_vaild;
@@ -152,7 +153,8 @@ module clock (
   wire down_btn;
   assign down_btn = key3_state[0];
 
-
+  reg issetintertime;
+  reg [63:0] intertime;
   clock_interface clock_interface_inst (
       .clk(clk),
       .up_btn(up_btn),
@@ -166,10 +168,60 @@ module clock (
       .day_bcd(day_bcd),
       .hour_bcd(hour_bcd),
       .minute_bcd(minute_bcd),
-      .second_bcd(second_bcd)
+      .second_bcd(second_bcd),
+      .issetintertime(issetintertime),
+      .intertime(intertime)
   );
 
+  reg [1:0] gettime_st;
+  localparam START = 2'd0;
+  localparam WAITTIME = 2'd1;
+  localparam SETTIME = 2'd2;
+  localparam FINISHED = 2'd3;
 
-
+  reg button_state;
+  localparam BUTTON_PRESS = 0, BUTTON_RELEASE = 1;
+  always @(posedge clk) begin
+    if (!reset_n) begin
+      gettime_st <= START;
+      en <= 0;
+      issetintertime <= 0;
+      intertime <= 0;
+      button_state <= BUTTON_RELEASE;
+    end else begin
+      if (right_button == 0) button_state <= BUTTON_RELEASE;
+      case (gettime_st)
+        START: begin
+          if (button_state == BUTTON_RELEASE) begin
+            if (right_button == 1) begin
+              gettime_st <= WAITTIME;
+              en <= 1;
+              button_state <= BUTTON_PRESS;
+            end
+          end
+        end
+        WAITTIME: begin
+          en <= 0;
+          if (finished) begin
+            gettime_st <= SETTIME;
+            intertime <= {32'b0, timeout};
+            issetintertime <= 1;
+          end else if (button_state == BUTTON_RELEASE) begin
+            if (right_button == 1) begin
+              gettime_st   <= SETTIME;
+              button_state <= BUTTON_PRESS;
+            end
+          end
+        end
+        SETTIME: begin
+          issetintertime <= 0;
+          gettime_st <= FINISHED;
+        end
+        FINISHED: begin
+          gettime_st <= START;
+        end
+      endcase
+    end
+  end
 endmodule
 
