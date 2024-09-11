@@ -2,13 +2,13 @@
 //This is a testbench for count_down_timer
 module count_down_timer_tb ();
 
-  // å®šä¹‰è¾“å…¥å’Œè¾“å‡ºä¿¡å·
-  reg clk_50M;  //éœ€è¦1khzæ—¶é’Ÿ
-  reg clk_1k;
+  // ¶¨ÒåÊäÈëºÍÊä³öĞÅºÅ
+  reg clk_5M;
   reg rst_n;
   reg set;
   reg play;
   reg stop;
+  reg reset;
   reg [7:0] hour_bcd_in;
   reg [7:0] minute_bcd_in;
   reg [7:0] second_bcd_in;
@@ -18,12 +18,12 @@ module count_down_timer_tb ();
   wire ring;
   wire counting;
 
-  // å®ä¾‹åŒ–è¢«æµ‹è¯•æ¨¡å—
+  // ÊµÀı»¯±»²âÊÔÄ£¿é
   count_down_timer uut (
-      .clk_50M(clk_50M),
-      .clk_1k(clk_1k),
+      .clk(clk_5M),
       .rst_n(rst_n),
       .set(set),
+      .reset(reset),
       .play(play),
       .stop(stop),
       .hour_bcd_in(hour_bcd_in),
@@ -36,16 +36,47 @@ module count_down_timer_tb ();
       .counting(counting)
   );
 
-  // ç”Ÿæˆæ—¶é’Ÿä¿¡å·
-  always #100000 clk_50M = ~clk_50M;  // 50MHzæ—¶é’Ÿ
-  always #500000 clk_1k = ~clk_1k;  // 1kHzæ—¶é’Ÿ
+  // Éú³ÉÊ±ÖÓĞÅºÅ
+  always #100 clk_5M = ~clk_5M;  // 50MHzÊ±ÖÓ
 
-  // æµ‹è¯•è¿‡ç¨‹
+  task press_set_btn;
+    begin
+      set = 1;
+      #300;
+      set = 0;
+    end
+  endtask
+
+  task press_play_btn;
+    begin
+      play = 1;
+      #300;
+      play = 0;
+    end
+  endtask
+
+  task press_stop_btn;
+    begin
+      stop = 1;
+      #300;
+      stop = 0;
+    end
+  endtask
+
+  task press_reset_btn;
+    begin
+      reset = 1;
+      #300;
+      reset = 0;
+    end
+  endtask
+
+  // ²âÊÔ¹ı³Ì
   initial begin
-    // åˆå§‹åŒ–ä¿¡å·
-    clk_50M = 0;
-    clk_1k = 0;
+    // ³õÊ¼»¯ĞÅºÅ
+    clk_5M = 0;
     rst_n = 0;
+    reset = 0;
     set = 0;
     play = 0;
     stop = 0;
@@ -53,52 +84,62 @@ module count_down_timer_tb ();
     minute_bcd_in = 0;
     second_bcd_in = 0;
 
-    // å¤ä½
-    #1000000 rst_n = 1;
+    // ¸´Î»
+    #200 rst_n = 1;
+    #2000
 
-    // æµ‹è¯•è®¾ç½®è®¡æ—¶å™¨
+    //ÏÔÊ¾¼ÆÊ±Æ÷Ê±¼ä
+    $display(
+        "¼ÆÊ±Æ÷Ê±¼ä: %h:%h:%h", hour_out_bcd, minute_out_bcd, second_out_bcd
+    );
+    press_play_btn();
+    #2000000000;
+    $display("¼ÆÊ±Æ÷Ê±¼ä: %h:%h:%h", hour_out_bcd, minute_out_bcd, second_out_bcd);
+
+
+    // ²âÊÔÉèÖÃ¼ÆÊ±Æ÷
     #1000000;
-    hour_bcd_in = 8'h00;  // 0å°æ—¶
-    minute_bcd_in = 8'h00;  // 0åˆ†é’Ÿ
-    second_bcd_in = 8'h3;  // 3ç§’
+    hour_bcd_in = 8'h00;  // 0Ğ¡Ê±
+    minute_bcd_in = 8'h00;  // 0·ÖÖÓ
+    second_bcd_in = 8'h3;  // 3Ãë
     set = 1;
-    // ç­‰å¾…50ms
+    // µÈ´ı50ms
     #1000000 set = 0;
 
 
-    $display("è®¾ç½®å€’è®¡æ—¶æ—¶é—´: %h:%h:%h", hour_out_bcd, minute_out_bcd, second_out_bcd);
+    $display("ÉèÖÃµ¹¼ÆÊ±Ê±¼ä: %h:%h:%h", hour_out_bcd, minute_out_bcd, second_out_bcd);
 
-    // å¼€å§‹è®¡æ—¶
+    // ¿ªÊ¼¼ÆÊ±
 
-    $display("å¼€å§‹å€’è®¡æ—¶æ—¶é—´: %h:%h:%h", hour_out_bcd, minute_out_bcd, second_out_bcd);
-    // ç­‰å¾…1000ms
+    $display("¿ªÊ¼µ¹¼ÆÊ±Ê±¼ä: %h:%h:%h", hour_out_bcd, minute_out_bcd, second_out_bcd);
+    // µÈ´ı1000ms
     #1000000000;
     stop = 1;
-    //ç­‰å¾…50ms
+    //µÈ´ı50ms
     #1000000 stop = 0;
-    $display("æš‚åœåæ—¶é—´: %h:%h:%h", hour_out_bcd, minute_out_bcd, second_out_bcd);
-    // ç­‰å¾…1000ms
+    $display("ÔİÍ£ºóÊ±¼ä: %h:%h:%h", hour_out_bcd, minute_out_bcd, second_out_bcd);
+    // µÈ´ı1000ms
     #1000000000;
     play = 1;
-    //ç­‰å¾…50ms
+    //µÈ´ı50ms
     #1000000 play = 0;
-    $display("ç»§ç»­å€’è®¡æ—¶æ—¶é—´: %h:%h:%h", hour_out_bcd, minute_out_bcd, second_out_bcd);
-    // ç­‰å¾…1000ms
+    $display("¼ÌĞøµ¹¼ÆÊ±Ê±¼ä: %h:%h:%h", hour_out_bcd, minute_out_bcd, second_out_bcd);
+    // µÈ´ı1000ms
 
-    // æµ‹è¯•é‡ç½®åŠŸèƒ½
+    // ²âÊÔÖØÖÃ¹¦ÄÜ
     #1000000000;
     set = 1;
     #1000000 set = 0;
-    $display("é‡ç½®åæ—¶é—´: %h:%h:%h", hour_out_bcd, minute_out_bcd, second_out_bcd);
+    $display("ÖØÖÃºóÊ±¼ä: %h:%h:%h", hour_out_bcd, minute_out_bcd, second_out_bcd);
 
 
-    // æµ‹è¯•é‡ç½®åŠŸèƒ½
+    // ²âÊÔÖØÖÃ¹¦ÄÜ
     play = 1;
     #1000000;
     play = 0;
 
-    $display("å€’è®¡æ—¶ç»“æŸæ—¶é—´: %h:%h:%h", hour_out_bcd, minute_out_bcd, second_out_bcd);
-    $display("é“ƒå£°çŠ¶æ€: %b", ring);
+    $display("µ¹¼ÆÊ±½áÊøÊ±¼ä: %h:%h:%h", hour_out_bcd, minute_out_bcd, second_out_bcd);
+    $display("ÁåÉù×´Ì¬: %b", ring);
     #1000000000;
     #1000000000;
     #1000000000;
@@ -107,7 +148,7 @@ module count_down_timer_tb ();
     #1000000000;
     set = 1;
     #1000000 set = 0;
-    // ç»“æŸä»¿çœŸ
+    // ½áÊø·ÂÕæ
     $finish;
   end
 

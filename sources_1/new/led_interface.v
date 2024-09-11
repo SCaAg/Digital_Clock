@@ -137,7 +137,6 @@ module led_interface (
   );
 
   // Timer display
-  wire set_timer;
   reg play_timer;
   reg stop_timer;
   wire [7:0] timer_hour_bcd;
@@ -145,13 +144,13 @@ module led_interface (
   wire [7:0] timer_second_bcd;
   wire timer_ring;
   wire timer_counting;
-  reg set_timer_after_stop;
-  reg set_timer_after_edit;
-  assign set_timer = set_timer_after_edit || set_timer_after_stop;
+  reg set_timer = 1'b0;
+  reg reset_timer = 1'b0;
 
   count_down_timer count_down_timer_inst (
       .clk(clk),
       .rst_n(rst_n),
+      .reset(reset_timer),
       .set(set_timer),
       .play(play_timer),
       .stop(stop_timer),
@@ -349,18 +348,18 @@ module led_interface (
 
   always @(posedge clk or negedge rst_n) begin
     if (~rst_n) begin
-      led_reg[0] <= 4'b0;
-      led_reg[1] <= 4'b0;
-      led_reg[2] <= 4'b0;
-      led_reg[3] <= 4'b0;
-      led_reg[4] <= 4'b0;
-      led_reg[5] <= 4'b0;
-      led_reg[6] <= 4'b0;
-      led_reg[7] <= 4'b0;
+      led_reg[0]   <= 4'b0;
+      led_reg[1]   <= 4'b0;
+      led_reg[2]   <= 4'b0;
+      led_reg[3]   <= 4'b0;
+      led_reg[4]   <= 4'b0;
+      led_reg[5]   <= 4'b0;
+      led_reg[6]   <= 4'b0;
+      led_reg[7]   <= 4'b0;
       cancel_alarm <= 1'b0;
-      stop_timer <= 1'b1;
-      play_timer <= 1'b0;
-      set_timer_after_stop <= 1'b0;
+      stop_timer   <= 1'b1;
+      play_timer   <= 1'b0;
+      reset_timer  <= 1'b0;
     end else if (down_btn_negedge) begin
       cancel_alarm <= 1'b0;
       case (state)
@@ -405,7 +404,14 @@ module led_interface (
           led_reg[1] <= timer_second_bcd[7:4];
           led_reg[0] <= timer_second_bcd[3:0];
           case (timer_counting)
-            1'b0: play_timer <= 1'b1;
+            1'b0: begin
+              if (~timer_ring) begin
+                play_timer <= 1'b1;
+              end else begin
+                play_timer  <= 1'b0;
+                reset_timer <= 1'b1;
+              end
+            end
             default: play_timer <= play_timer;
           endcase
           cancel_alarm <= 1'b1;
@@ -476,19 +482,19 @@ module led_interface (
           led_reg[0] <= timer_second_bcd[3:0];
           case (timer_counting)
             1'b0: begin
-              stop_timer <= 1'b0;
-              play_timer <= 1'b0;
-              set_timer_after_stop <= 1'b1;
+              stop_timer  <= 1'b0;
+              play_timer  <= 1'b0;
+              reset_timer <= 1'b1;
             end
             1'b1: begin
-              stop_timer <= 1'b1;
-              play_timer <= 1'b0;
-              set_timer_after_stop <= 1'b0;
+              stop_timer  <= 1'b1;
+              play_timer  <= 1'b0;
+              reset_timer <= 1'b0;
             end
             default: begin
-              stop_timer <= stop_timer;
-              play_timer <= play_timer;
-              set_timer_after_stop <= set_timer_after_stop;
+              stop_timer  <= stop_timer;
+              play_timer  <= play_timer;
+              reset_timer <= reset_timer;
             end
           endcase
         end
@@ -505,6 +511,7 @@ module led_interface (
       endcase
     end else begin
       cancel_alarm <= 1'b0;
+      reset_timer  <= 1'b0;
       case (state)
         TIME_DISP: begin
           led_reg[7] <= hour_bcd[7:4];
@@ -700,27 +707,27 @@ module led_interface (
 
   always @(posedge clk or negedge rst_n) begin
     if (~rst_n) begin
-      set_alarm <= 1'b0;
-      set_timer_after_edit <= 1'b0;
+      set_alarm   <= 1'b0;
+      set_timer   <= 1'b0;
       set_counter <= 1'b0;
     end else begin
       if((previous_state == TIME_EDIT_SECOND||previous_state == TIME_EDIT_MINUTE||previous_state == TIME_EDIT_HOUR||previous_state == TIME_EDIT_DAY||previous_state == TIME_EDIT_MONTH||previous_state == TIME_EDIT_YEAR)&&(current_state == TIME_DISP)) begin
-        set_alarm <= 1'b0;
-        set_timer_after_edit <= 1'b0;
+        set_alarm   <= 1'b0;
+        set_timer   <= 1'b0;
         set_counter <= 1'b1;
       end
       else if((previous_state == ALARM_EDIT_SECOND||previous_state == ALARM_EDIT_MINUTE||previous_state == ALARM_EDIT_HOUR)&&(current_state == ALARM_DISP)) begin
-        set_alarm <= 1'b1;
-        set_timer_after_edit <= 1'b0;
+        set_alarm   <= 1'b1;
+        set_timer   <= 1'b0;
         set_counter <= 1'b0;
       end
       else if((previous_state == TIMER_EDIT_SECOND||previous_state == TIMER_EDIT_MINUTE||previous_state == TIMER_EDIT_HOUR)&&(current_state == TIMER_DISP)) begin
-        set_alarm <= 1'b0;
-        set_timer_after_edit <= 1'b1;
+        set_alarm   <= 1'b0;
+        set_timer   <= 1'b1;
         set_counter <= 1'b0;
       end else begin
-        set_alarm <= 1'b0;
-        set_timer_after_edit <= 1'b0;
+        set_alarm   <= 1'b0;
+        set_timer   <= 1'b0;
         set_counter <= 1'b0;
       end
     end
