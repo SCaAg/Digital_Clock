@@ -26,7 +26,7 @@ module alarm (
     output reg ring
 );
   //---alarm storage---//
-  reg  [63:0] alarm0_stamp = 64'd0;
+  reg  [63:0] alarm0_stamp = 64'd5;
   reg  [63:0] alarm1_stamp = 64'd946684799;
   reg  [63:0] alarm2_stamp = 64'd2147483647;
 
@@ -93,7 +93,7 @@ module alarm (
 
   always @(posedge clk or negedge rst_n) begin
     if (~rst_n) begin
-      alarm0_stamp <= 64'd0;
+      alarm0_stamp <= 64'd5;
       alarm1_stamp <= 64'd946684799;
       alarm2_stamp <= 64'd2147483647;
     end else if (set) begin
@@ -107,32 +107,32 @@ module alarm (
   end
 
   //--check to ring--//
-  reg [4:0] ring_counter;
+  reg [27:0] ring_counter;
 
   always @(posedge clk or negedge rst_n) begin
     if (~rst_n) begin
-      ring_counter <= 5'd0;
+      ring_counter <= 28'd0;
       ring <= 1'b0;
     end else begin
       if ((counter == alarm0_stamp) || (counter == alarm1_stamp) || (counter == alarm2_stamp)) begin
         ring <= 1'b1;
-        ring_counter <= 5'd0;
+        ring_counter <= 28'd0;
       end else if (~cancel && ring) begin
-        if (ring_counter < 5'd4) begin
+        if (ring_counter < 28'd24999999) begin
           ring_counter <= ring_counter + 1;
           ring <= 1'b1;
-        end else if (ring_counter < 5'd14) begin
+        end else if (ring_counter < 28'd74999999) begin
           ring_counter <= ring_counter + 1;
           ring <= 1'b0;
-        end else if (ring_counter < 5'd19) begin
+        end else if (ring_counter < 28'd99999999) begin
           ring_counter <= ring_counter + 1;
           ring <= 1'b1;
         end else begin
-          ring_counter <= 5'd0;
+          ring_counter <= 28'd0;
           ring <= 1'b0;
         end
-      end else if (~cancel && ~ring && ring_counter >= 5'd4) begin
-        if (ring_counter < 5'd14) begin
+      end else if (~cancel && ~ring && ring_counter >= 28'd24999999) begin
+        if (ring_counter < 28'd74999999) begin
           ring_counter <= ring_counter + 1;
           ring <= 1'b0;
         end else begin
@@ -140,7 +140,7 @@ module alarm (
           ring <= 1'b1;
         end
       end else begin
-        ring_counter <= 5'd0;
+        ring_counter <= 28'd0;
         ring <= 1'b0;
       end
     end

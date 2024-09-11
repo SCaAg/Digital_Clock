@@ -282,7 +282,9 @@ module led_interface (
           hour_bcd_edit   <= hour_bcd_edit;
           day_bcd_edit    <= day_bcd_edit;
           month_bcd_edit  <= month_bcd_edit;
-          if (year_bcd_edit[3:0] == 4'h9) begin
+          if (year_bcd_edit == 16'h9999) begin
+            year_bcd_edit <= 16'h1970;
+          end else if (year_bcd_edit[3:0] == 4'h9) begin
             if (year_bcd_edit[7:4] == 4'h9) begin
               if (year_bcd_edit[11:8] == 4'h9) begin
                 if (year_bcd_edit[15:12] == 4'h9) begin
@@ -307,6 +309,36 @@ module led_interface (
           end
         end
       endcase
+    end else if (up_btn_negedge) begin
+      if (state == TIME_EDIT_YEAR) begin
+        if (year_bcd_edit == 16'h1970) begin
+          year_bcd_edit <= 16'h9999;
+        end else if (year_bcd_edit[3:0] == 4'h0) begin
+          if (year_bcd_edit[7:4] == 4'h0) begin
+            if (year_bcd_edit[11:8] == 4'h0) begin
+              if (year_bcd_edit[15:12] == 4'h0) begin
+                year_bcd_edit <= 16'h9999;
+              end else begin
+                year_bcd_edit[15:12] <= year_bcd_edit[15:12] - 1;
+                year_bcd_edit[11:8]  <= 4'h9;
+                year_bcd_edit[7:4]   <= 4'h9;
+                year_bcd_edit[3:0]   <= 4'h9;
+              end
+            end else begin
+              year_bcd_edit[11:8] <= year_bcd_edit[11:8] - 1;
+              year_bcd_edit[7:4]  <= 4'h9;
+              year_bcd_edit[3:0]  <= 4'h9;
+            end
+          end else begin
+            year_bcd_edit[7:4] <= year_bcd_edit[7:4] - 1;
+            year_bcd_edit[3:0] <= 4'h9;
+          end
+        end else begin
+          year_bcd_edit[3:0] <= year_bcd_edit[3:0] - 1;
+        end
+
+      end
+
     end else begin
       case (state)
         TIME_DISP, DATE_DISP: begin
@@ -361,7 +393,7 @@ module led_interface (
       play_timer   <= 1'b0;
       reset_timer  <= 1'b0;
     end else if (down_btn_negedge) begin
-      cancel_alarm <= 1'b0;
+      cancel_alarm <= 1'b1;
       case (state)
         TIME_DISP: begin
           led_reg[7] <= hour_bcd[7:4];
@@ -384,15 +416,14 @@ module led_interface (
           led_reg[0] <= day_bcd[3:0];
         end
         ALARM_DISP: begin
-          led_reg[7]   <= {2'b0, selected_alarm};
-          led_reg[6]   <= 4'd11;  //turn off led6
-          led_reg[5]   <= alarm_hour_bcd[7:4];
-          led_reg[4]   <= alarm_hour_bcd[3:0];
-          led_reg[3]   <= alarm_minute_bcd[7:4];
-          led_reg[2]   <= alarm_minute_bcd[3:0];
-          led_reg[1]   <= alarm_second_bcd[7:4];
-          led_reg[0]   <= alarm_second_bcd[3:0];
-          cancel_alarm <= 1'b1;
+          led_reg[7] <= {2'b0, selected_alarm};
+          led_reg[6] <= 4'd11;  //turn off led6
+          led_reg[5] <= alarm_hour_bcd[7:4];
+          led_reg[4] <= alarm_hour_bcd[3:0];
+          led_reg[3] <= alarm_minute_bcd[7:4];
+          led_reg[2] <= alarm_minute_bcd[3:0];
+          led_reg[1] <= alarm_second_bcd[7:4];
+          led_reg[0] <= alarm_second_bcd[3:0];
         end
         TIMER_DISP: begin
           led_reg[7] <= timer_hour_bcd[7:4];
@@ -414,7 +445,6 @@ module led_interface (
             end
             default: play_timer <= play_timer;
           endcase
-          cancel_alarm <= 1'b1;
         end
         TIME_EDIT_SECOND,TIME_EDIT_MINUTE,TIME_EDIT_HOUR,TIMER_EDIT_SECOND,TIMER_EDIT_MINUTE,TIMER_EDIT_HOUR: begin
           led_reg[7] <= hour_bcd_edit[7:4];
@@ -458,6 +488,7 @@ module led_interface (
         end
       endcase
     end else if (up_btn_negedge) begin
+      cancel_alarm <= 1'b1;
       case (state)
         ALARM_DISP: begin
           selected_alarm <= selected_alarm == 2'd2 ? 2'd0 : selected_alarm + 2'd1;
@@ -469,7 +500,6 @@ module led_interface (
           led_reg[2] <= alarm_minute_bcd[3:0];
           led_reg[1] <= alarm_second_bcd[7:4];
           led_reg[0] <= alarm_second_bcd[3:0];
-          cancel_alarm <= 1'b1;
         end
         TIMER_DISP: begin
           led_reg[7] <= timer_hour_bcd[7:4];
@@ -754,11 +784,11 @@ module led_interface (
       case (state)
         TIME_DISP: begin
           dot_reg   <= 8'b11111111;
-          blink_reg <= 8'b00000000;
+          blink_reg <= ring ? 8'b11111111 : 8'b00000000;
         end
         DATE_DISP: begin
           dot_reg   <= 8'b11101010;
-          blink_reg <= 8'b00000000;
+          blink_reg <= ring ? 8'b11111111 : 8'b00000000;
         end
         TIME_EDIT_SECOND: begin
           dot_reg   <= 8'b11111111;
@@ -786,7 +816,7 @@ module led_interface (
         end
         ALARM_DISP: begin
           dot_reg   <= 8'b11111111;
-          blink_reg <= 8'b00000000;
+          blink_reg <= ring ? 8'b11111111 : 8'b00000000;
         end
         ALARM_EDIT_SECOND: begin
           dot_reg   <= 8'b11111111;
@@ -802,7 +832,7 @@ module led_interface (
         end
         TIMER_DISP: begin
           dot_reg   <= 8'b11111111;
-          blink_reg <= timer_ring ? 8'b11111111 : 8'b00000000;
+          blink_reg <= ring ? 8'b11111111 : 8'b00000000;
         end
         TIMER_EDIT_SECOND: begin
           dot_reg   <= 8'b11111111;
