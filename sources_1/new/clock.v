@@ -80,10 +80,16 @@ module clock (
   assign hour = hour_bcd[7:4] * 10 + hour_bcd[3:0];
   assign minute = minute_bcd[7:4] * 10 + minute_bcd[3:0];
   assign second = second_bcd[7:4] * 10 + second_bcd[3:0];
-  /*
+  reg init_reset_n = 1'b0;
+  initial begin
+    init_reset_n <= 1'b0;
+  end
+  always @(posedge clk) begin
+    init_reset_n <= 1'b1;
+  end
   oledInterface oledInterface1 (
       .clk(clk),
-      .reset_n(reset_n),
+      .reset_n(reset_n && init_reset_n),
       .hour(hour),
       .minute(minute),
       .second(second),
@@ -95,7 +101,7 @@ module clock (
       .year(year),
       .month(month),
       .day(day)
-  );*/
+  );
 
   wire [3:0] key_code;
   wire key_vaild;
