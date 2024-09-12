@@ -177,10 +177,18 @@ module clock (
       .rst_n(reset_n)
   );
 
-  assign beep = ~ring;
-  assign led  = ring;
-
-
+  assign beep = ring ? (clk_out_4Hz ? clk_out_500Hz : 1'b0) : 1'b0;
+  assign led  = ring ? clk_out_4Hz : 1'b0;
+  wire clk_out_500Hz;
+  wire clk_out_4Hz;
+  wire clk_out_1Hz;
+  ring_divider ring_divider_inst (
+      .clk_in_50M(clk),
+      .rst_n(reset_n),
+      .clk_out_500Hz(clk_out_500Hz),
+      .clk_out_4Hz(clk_out_4Hz),
+      .clk_out_1Hz(clk_out_1Hz)
+  );
   reg [1:0] gettime_st;
   localparam START = 2'd0;
   localparam WAITTIME = 2'd1;
