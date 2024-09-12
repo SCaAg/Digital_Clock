@@ -26,7 +26,7 @@ module alarm (
     output reg ring
 );
   //---alarm storage---//
-  reg  [63:0] alarm0_stamp = 64'd5;
+  reg  [63:0] alarm0_stamp = 64'd946684799;
   reg  [63:0] alarm1_stamp = 64'd946684799;
   reg  [63:0] alarm2_stamp = 64'd2147483647;
 
@@ -93,7 +93,7 @@ module alarm (
 
   always @(posedge clk or negedge rst_n) begin
     if (~rst_n) begin
-      alarm0_stamp <= 64'd5;
+      alarm0_stamp <= 64'd946684799;
       alarm1_stamp <= 64'd946684799;
       alarm2_stamp <= 64'd2147483647;
     end else if (set) begin

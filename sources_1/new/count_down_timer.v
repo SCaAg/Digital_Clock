@@ -71,7 +71,16 @@ module count_down_timer (
     end
   end
 
-
+  reg [27:0] ring_counter = 28'd0;
+  always @(posedge clk_5M or negedge rst_n) begin
+    if (!rst_n) begin
+      ring_counter <= 28'd0;
+    end else if (ring) begin
+      ring_counter <= ring_counter + 1;
+    end else begin
+      ring_counter <= 28'd0;
+    end
+  end
   always @(posedge clk_5M or negedge rst_n) begin
     if (!rst_n) begin
       counting <= 1'b0;
@@ -101,6 +110,8 @@ module count_down_timer (
     end else if (threshold) begin
       ring <= 1'b1;
     end else if (reset_pulse) begin
+      ring <= 1'b0;
+    end else if (ring_counter >= 28'd25000000) begin
       ring <= 1'b0;
     end else begin
       ring <= ring;

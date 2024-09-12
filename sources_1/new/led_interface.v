@@ -165,7 +165,27 @@ module led_interface (
       .counting(timer_counting)
   );
 
-
+  wire [13:0] year_edit = year_bcd_edit[15:12] * 1000 + year_bcd_edit[11:8] * 100 + year_bcd_edit[7:4] * 10 + year_bcd_edit[3:0];
+  wire is_leap_year = (year_edit % 4 == 0 && year_edit % 100 != 0) || year_edit % 400 == 0;
+  reg [7:0] day_bcd_max = 8'h31;
+  always @(posedge clk or negedge rst_n) begin
+    if (~rst_n) begin
+      day_bcd_max <= 8'h31;
+    end else begin
+      case (month_bcd_edit)
+        8'h01, 8'h03, 8'h05, 8'h07, 8'h08, 8'h10, 8'h12: begin
+          day_bcd_max <= 8'h31;
+        end
+        8'h04, 8'h06, 8'h09, 8'h11: begin
+          day_bcd_max <= 8'h30;
+        end
+        8'h02: begin
+          day_bcd_max <= is_leap_year ? 8'h29 : 8'h28;
+        end
+        default: day_bcd_max <= is_leap_year ? 8'h29 : 8'h28;
+      endcase
+    end
+  end
 
 
   always @(posedge clk or negedge rst_n) begin
@@ -251,7 +271,7 @@ module led_interface (
           second_bcd_edit <= second_bcd_edit;
           minute_bcd_edit <= minute_bcd_edit;
           hour_bcd_edit   <= hour_bcd_edit;
-          if (day_bcd_edit == 8'h31) begin
+          if (day_bcd_edit >= day_bcd_max) begin
             day_bcd_edit <= 8'h1;
           end else if (day_bcd_edit[3:0] == 4'd9) begin
             day_bcd_edit[3:0] <= 4'd0;
@@ -266,7 +286,7 @@ module led_interface (
           second_bcd_edit <= second_bcd_edit;
           minute_bcd_edit <= minute_bcd_edit;
           hour_bcd_edit   <= hour_bcd_edit;
-          if (month_bcd_edit == 8'h12) begin
+          if (month_bcd_edit >= 8'h12) begin
             month_bcd_edit <= 8'h1;
           end else if (month_bcd_edit[3:0] == 4'd9) begin
             month_bcd_edit[3:0] <= 4'd0;
@@ -283,7 +303,7 @@ module led_interface (
           hour_bcd_edit   <= hour_bcd_edit;
           day_bcd_edit    <= day_bcd_edit;
           month_bcd_edit  <= month_bcd_edit;
-          if (year_bcd_edit == 16'h9999) begin
+          if (year_bcd_edit >= 16'h9999) begin
             year_bcd_edit <= 16'h1970;
           end else if (year_bcd_edit[3:0] == 4'h9) begin
             if (year_bcd_edit[7:4] == 4'h9) begin
@@ -311,35 +331,136 @@ module led_interface (
         end
       endcase
     end else if (up_btn_negedge) begin
-      if (state == TIME_EDIT_YEAR) begin
-        if (year_bcd_edit == 16'h1970) begin
-          year_bcd_edit <= 16'h9999;
-        end else if (year_bcd_edit[3:0] == 4'h0) begin
-          if (year_bcd_edit[7:4] == 4'h0) begin
-            if (year_bcd_edit[11:8] == 4'h0) begin
-              if (year_bcd_edit[15:12] == 4'h0) begin
-                year_bcd_edit <= 16'h9999;
+      case (state)
+        TIME_DISP, DATE_DISP: begin
+          second_bcd_edit <= second_bcd;
+          minute_bcd_edit <= minute_bcd;
+          hour_bcd_edit   <= hour_bcd;
+          day_bcd_edit    <= day_bcd;
+          month_bcd_edit  <= month_bcd;
+          year_bcd_edit   <= year_bcd;
+        end
+        ALARM_DISP: begin
+          second_bcd_edit <= alarm_second_bcd;
+          minute_bcd_edit <= alarm_minute_bcd;
+          hour_bcd_edit   <= alarm_hour_bcd;
+          day_bcd_edit    <= day_bcd;
+          month_bcd_edit  <= month_bcd;
+          year_bcd_edit   <= year_bcd;
+        end
+        TIMER_DISP: begin
+          second_bcd_edit <= timer_second_bcd;
+          minute_bcd_edit <= timer_minute_bcd;
+          hour_bcd_edit   <= timer_hour_bcd;
+          day_bcd_edit    <= day_bcd;
+          month_bcd_edit  <= month_bcd;
+          year_bcd_edit   <= year_bcd;
+        end
+        TIME_EDIT_SECOND, ALARM_EDIT_SECOND, TIMER_EDIT_SECOND: begin
+          if (second_bcd_edit == 8'h00) begin
+            second_bcd_edit <= 8'h59;
+          end else if (second_bcd_edit[3:0] == 4'd0) begin
+            second_bcd_edit[3:0] <= 4'd9;
+            second_bcd_edit[7:4] <= second_bcd_edit[7:4] - 1;
+          end else begin
+            second_bcd_edit <= second_bcd_edit - 1;
+          end
+          minute_bcd_edit <= minute_bcd_edit;
+          hour_bcd_edit   <= hour_bcd_edit;
+          day_bcd_edit    <= day_bcd_edit;
+          month_bcd_edit  <= month_bcd_edit;
+          year_bcd_edit   <= year_bcd_edit;
+        end
+        TIME_EDIT_MINUTE, ALARM_EDIT_MINUTE, TIMER_EDIT_MINUTE: begin
+          second_bcd_edit <= second_bcd_edit;
+          if (minute_bcd_edit == 8'h00) begin
+            minute_bcd_edit <= 8'h59;
+          end else if (minute_bcd_edit[3:0] == 4'd0) begin
+            minute_bcd_edit[3:0] <= 4'd9;
+            minute_bcd_edit[7:4] <= minute_bcd_edit[7:4] - 1;
+          end else begin
+            minute_bcd_edit <= minute_bcd_edit - 1;
+          end
+          hour_bcd_edit  <= hour_bcd_edit;
+          day_bcd_edit   <= day_bcd_edit;
+          month_bcd_edit <= month_bcd_edit;
+          year_bcd_edit  <= year_bcd_edit;
+        end
+        TIME_EDIT_HOUR, ALARM_EDIT_HOUR, TIMER_EDIT_HOUR: begin
+          second_bcd_edit <= second_bcd_edit;
+          minute_bcd_edit <= minute_bcd_edit;
+          if (hour_bcd_edit == 8'h00) begin
+            hour_bcd_edit <= 8'h23;
+          end else if (hour_bcd_edit[3:0] == 4'd0) begin
+            hour_bcd_edit[3:0] <= 4'd9;
+            hour_bcd_edit[7:4] <= hour_bcd_edit[7:4] - 1;
+          end else begin
+            hour_bcd_edit <= hour_bcd_edit - 1;
+          end
+          day_bcd_edit   <= day_bcd_edit;
+          month_bcd_edit <= month_bcd_edit;
+          year_bcd_edit  <= year_bcd_edit;
+        end
+        TIME_EDIT_DAY: begin
+          second_bcd_edit <= second_bcd_edit;
+          minute_bcd_edit <= minute_bcd_edit;
+          hour_bcd_edit   <= hour_bcd_edit;
+          if (day_bcd_edit <= 8'h01) begin
+            day_bcd_edit <= day_bcd_max;
+          end else if (day_bcd_edit[3:0] == 4'd0) begin
+            day_bcd_edit[3:0] <= 4'd9;
+            day_bcd_edit[7:4] <= day_bcd_edit[7:4] - 1;
+          end else begin
+            day_bcd_edit <= day_bcd_edit - 1;
+          end
+          month_bcd_edit <= month_bcd_edit;
+          year_bcd_edit  <= year_bcd_edit;
+        end
+        TIME_EDIT_MONTH: begin
+          second_bcd_edit <= second_bcd_edit;
+          minute_bcd_edit <= minute_bcd_edit;
+          hour_bcd_edit   <= hour_bcd_edit;
+          if (month_bcd_edit <= 8'h01) begin
+            month_bcd_edit <= 8'h12;
+          end else if (month_bcd_edit[3:0] == 4'd0) begin
+            month_bcd_edit[3:0] <= 4'd9;
+            month_bcd_edit[7:4] <= month_bcd_edit[7:4] - 1;
+          end else begin
+            month_bcd_edit <= month_bcd_edit - 1;
+          end
+          day_bcd_edit  <= day_bcd_edit;
+          year_bcd_edit <= year_bcd_edit;
+        end
+        TIME_EDIT_YEAR: begin
+          if (year_bcd_edit <= 16'h1970) begin
+            year_bcd_edit <= 16'h9999;
+          end else if (year_bcd_edit[3:0] == 4'h0) begin
+            if (year_bcd_edit[7:4] == 4'h0) begin
+              if (year_bcd_edit[11:8] == 4'h0) begin
+                if (year_bcd_edit[15:12] == 4'h0) begin
+                  year_bcd_edit <= 16'h9999;
+                end else begin
+                  year_bcd_edit[15:12] <= year_bcd_edit[15:12] - 1;
+                  year_bcd_edit[11:8]  <= 4'h9;
+                  year_bcd_edit[7:4]   <= 4'h9;
+                  year_bcd_edit[3:0]   <= 4'h9;
+                end
               end else begin
-                year_bcd_edit[15:12] <= year_bcd_edit[15:12] - 1;
-                year_bcd_edit[11:8]  <= 4'h9;
-                year_bcd_edit[7:4]   <= 4'h9;
-                year_bcd_edit[3:0]   <= 4'h9;
+                year_bcd_edit[11:8] <= year_bcd_edit[11:8] - 1;
+                year_bcd_edit[7:4]  <= 4'h9;
+                year_bcd_edit[3:0]  <= 4'h9;
               end
             end else begin
-              year_bcd_edit[11:8] <= year_bcd_edit[11:8] - 1;
-              year_bcd_edit[7:4]  <= 4'h9;
-              year_bcd_edit[3:0]  <= 4'h9;
+              year_bcd_edit[7:4] <= year_bcd_edit[7:4] - 1;
+              year_bcd_edit[3:0] <= 4'h9;
             end
           end else begin
-            year_bcd_edit[7:4] <= year_bcd_edit[7:4] - 1;
-            year_bcd_edit[3:0] <= 4'h9;
+            year_bcd_edit[3:0] <= year_bcd_edit[3:0] - 1;
           end
-        end else begin
-          year_bcd_edit[3:0] <= year_bcd_edit[3:0] - 1;
+
         end
 
-      end
-
+      endcase
     end else begin
       case (state)
         TIME_DISP, DATE_DISP: begin
@@ -365,6 +486,18 @@ module led_interface (
           day_bcd_edit    <= day_bcd;
           month_bcd_edit  <= month_bcd;
           year_bcd_edit   <= year_bcd;
+        end
+        TIME_EDIT_SECOND, TIME_EDIT_MINUTE, TIME_EDIT_HOUR, TIME_EDIT_DAY, TIME_EDIT_MONTH, TIME_EDIT_YEAR: begin
+          second_bcd_edit <= second_bcd_edit;
+          minute_bcd_edit <= minute_bcd_edit;
+          hour_bcd_edit   <= hour_bcd_edit;
+          if (day_bcd_edit >= day_bcd_max) begin
+            day_bcd_edit <= day_bcd_max;
+          end else begin
+            day_bcd_edit <= day_bcd_edit;
+          end
+          month_bcd_edit <= month_bcd_edit;
+          year_bcd_edit  <= year_bcd_edit;
         end
         default: begin
           second_bcd_edit <= second_bcd_edit;

@@ -52,6 +52,7 @@ module clock (
     output [7:0] seg,
     output [7:0] an,
     output led,
+    output beep,
     input rx_pin,
     output tx_pin,
     output sck,
@@ -155,10 +156,11 @@ module clock (
 
   reg issetintertime;
   reg [63:0] intertime;
+  wire ring;
   clock_interface clock_interface_inst (
       .clk(clk),
-      .up_btn(up_btn),
-      .down_btn(down_btn),
+      .up_btn(down_btn),
+      .down_btn(up_btn),
       .mode_btn(mode_btn),
       .adjust_btn(adjust_btn),
       .seg(seg),
@@ -170,8 +172,14 @@ module clock (
       .minute_bcd(minute_bcd),
       .second_bcd(second_bcd),
       .issetintertime(issetintertime),
-      .intertime(intertime)
+      .intertime(intertime),
+      .ring(ring),
+      .rst_n(reset_n)
   );
+
+  assign beep = ~ring;
+  assign led  = ring;
+
 
   reg [1:0] gettime_st;
   localparam START = 2'd0;

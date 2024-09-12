@@ -94,6 +94,11 @@ module count_down_timer_tb ();
     );
     press_play_btn();
     #2000000000;
+    #2000000000;
+    #2000000000;
+    #2000000000;
+    #2000000000;
+    #2000000000;
     $display("计时器时间: %h:%h:%h", hour_out_bcd, minute_out_bcd, second_out_bcd);
 
 

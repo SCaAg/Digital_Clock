@@ -34,19 +34,15 @@ module clock_interface (
     output wire [7:0] minute_bcd,
     output wire [7:0] second_bcd,
     input wire issetintertime,
-    input wire [63:0] intertime
+    input wire [63:0] intertime,
+    output wire ring,
+    input wire rst_n
 );
 
-  reg rst_n;
-  initial begin
-    rst_n = 1'b0;
-  end
-  always @(posedge clk) begin
-    rst_n <= 1'b1;
-  end
+
   // 实例化 unixCounter 模块
   wire [63:0] counter;
-  wire setCounter;
+  wire [63:0] setCounter;
   wire [63:0] setCounter_total;
   assign setCounter_total = issetintertime ? intertime : setCounter;
 
@@ -83,7 +79,7 @@ module clock_interface (
 
   // 实例化 led_interface 模块
   wire set_counter;
-  wire ring;
+
   wire [3:0] led0, led1, led2, led3, led4, led5, led6, led7;
   wire [63:0] counter_out;
   wire [7:0] dot_reg, blink_reg;
